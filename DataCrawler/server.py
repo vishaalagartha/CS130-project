@@ -45,8 +45,8 @@ class RequestHandler(BaseHTTPRequestHandler):
         else:
             self.send_error(400, 'Invalid parameters supplied')
         
-        
-port = 8080
-print('Listening on localhost:%s' % port)
-server = HTTPServer(('', port), RequestHandler)
-server.serve_forever()
+if __name__ == "__main__":
+    port = 8080
+    print('Listening on localhost:%s' % port)
+    server = HTTPServer(('', port), RequestHandler)
+    server.serve_forever()

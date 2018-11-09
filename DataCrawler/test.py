@@ -1,8 +1,15 @@
-import unittest, requests
+import unittest, requests, threading
 from data_crawler2 import DataCrawler
+from http.server import HTTPServer
+from server import RequestHandler
 
 class TestDataCrawler(unittest.TestCase):
     def test_server(self):
+        port = 8080
+        server = HTTPServer(('', port), RequestHandler)
+        server_thread = threading.Thread(target=server.serve_forever)
+        server_thread.daemon = True
+        server_thread.start()
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
             'start': 1541266110, 'end': 1541266115})
 
@@ -22,6 +29,7 @@ class TestDataCrawler(unittest.TestCase):
             'start': 'hello this is bad', 'end': 1541266115})
 
         self.assertEqual(400, r.status_code)
+        server.shutdown()
 
 
     def test_filter_words(self):
@@ -73,9 +81,6 @@ class TestDataCrawler(unittest.TestCase):
 
         self.assertEqual(word_that_should_exist[0], 'quarter')
         self.assertGreaterEqual(word_that_should_exist[1], 20) 
-
-
-
 
 if __name__ == '__main__':
     unittest.main()
