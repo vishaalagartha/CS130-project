@@ -10,7 +10,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.client_port = 8081
         super().__init__(*args, **kwargs)
 
-    def _validated(self, post_data):
+    def validated(self, post_data):
         if 'subreddit' not in post_data or not isinstance(post_data['subreddit'], str):
             return False
         if 'start' not in post_data or not isinstance(post_data['start'], int):
@@ -25,14 +25,14 @@ class RequestHandler(BaseHTTPRequestHandler):
         freq = crawler.run()
         return freq
 
-    def _send_freqs(self, freq):
+    def send_freq(self, freq):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         data = json.dumps(freq).encode('utf-8')
         self.wfile.write(data)
 
-    def _send_words(self, freq):
+    def send_words(self, freq):
         words = [i[0] for i in freq]
         connection = http.client.HTTPConnection(self.client_endpoint,
                 port=self.client_port)
@@ -47,10 +47,10 @@ class RequestHandler(BaseHTTPRequestHandler):
         content_length = int(self.headers['Content-Length'])
         post_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
 
-        if self._validated(post_data):
+        if self.validated(post_data):
             freq = self._crawl(post_data)
-            self._send_freqs(freq)
-            self._send_words(freq)
+            self.send_freq(freq)
+            self.send_words(freq)
         else:
             self.send_error(400, 'Invalid parameters supplied')
         
