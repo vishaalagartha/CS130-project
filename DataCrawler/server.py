@@ -4,6 +4,12 @@ from data_crawler2 import DataCrawler
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 class RequestHandler(BaseHTTPRequestHandler):
+    def __init__(self, test, *args, **kwargs):
+        if test:
+            self.client_endpoint = '127.0.0.1'
+            self.client_port = 8081
+        super().__init__(*args, **kwargs)
+
     def _validated(self, post_data):
         if 'subreddit' not in post_data or not isinstance(post_data['subreddit'], str):
             return False
@@ -28,11 +34,14 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def _send_words(self, freq):
         words = [i[0] for i in freq]
-        connection = http.client.HTTPSConnection(SENTIMENT_ANALYZER_ENDPOINT)
+        connection = http.client.HTTPConnection(self.client_endpoint,
+                port=self.client_port)
         headers = {'Content-type': 'application/json'}
         json_words = json.dumps(words)
         connection.request('POST', '/', json_words, headers)
         response = connection.getresponse()
+        if response.status!=200:
+            print('Client server down')
 
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
@@ -41,7 +50,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         if self._validated(post_data):
             freq = self._crawl(post_data)
             self._send_freqs(freq)
-            #self._send_words(freq)
+            self._send_words(freq)
         else:
             self.send_error(400, 'Invalid parameters supplied')
         

@@ -1,19 +1,46 @@
-import unittest, requests, threading
+import unittest, requests, json, threading
+from functools import partial
 from data_crawler2 import DataCrawler
-from http.server import HTTPServer
+from http.server import HTTPServer, BaseHTTPRequestHandler
 from server import RequestHandler
+
+class TestServer(BaseHTTPRequestHandler):
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
+        expected_data = ['nt', 'markets', 'certain', 'see', 'guess',
+                'months', 'two', 'take', 'think', 'lol', 'snow', 'sport',
+                'winter', 'parity', 'ca', 'options', 'entertainment', 'find',
+                'need', 'like', 'nba']
+
+        if post_data==expected_data: 
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+        else:
+            self.send_response(400, 'Bad data provided')
+
 
 class TestDataCrawler(unittest.TestCase):
     def test_server(self):
-        port = 8080
-        server = HTTPServer(('', port), RequestHandler)
+        server_port = 8080
+        test_server_port = 8081
+
+        handler = partial(RequestHandler, True)
+        server = HTTPServer(('', server_port), handler)
         server_thread = threading.Thread(target=server.serve_forever)
         server_thread.daemon = True
-        server_thread.start()
-        r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
-            'start': 1541266110, 'end': 1541266115})
 
-        self.assertEqual(200, r.status_code)
+        test_server = HTTPServer(('', test_server_port), TestServer)
+        test_server_thread = threading.Thread(target=test_server.serve_forever)
+        test_server_thread.daemon = True
+
+
+        server_thread.start()
+        test_server_thread.start()
+
+        r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
+            'start': 1541266100, 'end': 1541266115})
 
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
             'start': 1541246800})
@@ -30,6 +57,7 @@ class TestDataCrawler(unittest.TestCase):
 
         self.assertEqual(400, r.status_code)
         server.shutdown()
+        test_server.shutdown()
 
 
     def test_filter_words(self):
