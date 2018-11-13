@@ -1,6 +1,6 @@
 import json, http.client
 from constants import SENTIMENT_ANALYZER_ENDPOINT
-from data_crawler2 import DataCrawler
+from data_crawler import DataCrawler
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -27,7 +27,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def send_freq(self, freq):
         self.send_response(200)
-        self.send_header('Content-type', 'text/html')
+        self.send_header('Content-type', 'application/json')
         self.end_headers()
         data = json.dumps(freq).encode('utf-8')
         self.wfile.write(data)

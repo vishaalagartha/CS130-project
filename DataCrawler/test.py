@@ -1,6 +1,6 @@
 import unittest, requests, json, threading
 from functools import partial
-from data_crawler2 import DataCrawler
+from data_crawler import DataCrawler
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from server import RequestHandler
 
@@ -41,6 +41,7 @@ class TestDataCrawler(unittest.TestCase):
 
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
             'start': 1541266100, 'end': 1541266115})
+        self.assertEqual(200, r.status_code)
 
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
             'start': 1541246800})

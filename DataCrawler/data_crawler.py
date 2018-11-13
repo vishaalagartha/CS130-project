@@ -1,43 +1,77 @@
-import json, praw
+import string, json
+from multiprocessing import Pool
+from psaw import PushshiftAPI
+from constants import COMMON_WORDS 
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from operator import itemgetter
 
 class DataCrawler:
-    def __init__(self, json={}):
-        self.reddit = praw.Reddit(client_id='Cyqg1DNvQYLqyg',
-            client_secret='KT9QupQ_yyqFlBkmi5PUOQBaiWY',
-            user_agent='Comment Extraction (by /u/vagartha)')
-        self.subreddit = self.reddit.subreddit('nba')
+    def __init__(self, params):
+        self.subreddit = params['subreddit'] 
+        self.start_date = params['start']
+        self.end_date = params['end']
 
-    '''
-    Gets comments within a comment
-    '''
-    def getSubComments(self, comment, allComments, verbose=True, depth=0):
-        if depth>5:
-            return
-        allComments.append(comment)
-        if not hasattr(comment, 'replies'):
-            replies = comment.comments()
-            if verbose: print('fetching (' + str(len(allComments)) + ' comments fetched total)')
-        else:
-            replies = comment.replies
-        for child in replies:
-            self.getSubComments(child, allComments, verbose=verbose, depth=depth+1)
+        # calculate number of threads
+        nthreads = 5
+        size = int((self.end_date-self.start_date)/nthreads)
+        self.date_ranges = []
+        end_date = self.end_date
+        while end_date>self.start_date:
+            self.date_ranges.append({'after': end_date-size, 'before': end_date})
+            end_date -= size
 
-    '''
-    Get all comments under a submission
-    '''
-    def getAllComments(self, submission, verbose=True):
-        comments = submission.comments
-        commentsList = []
-        for comment in comments:
-            self.getSubComments(comment, commentsList, verbose=verbose)
-        return commentsList
+    def fetch(self, ranges):
+        gen = PushshiftAPI().search_comments(subreddit=self.subreddit, before=ranges['before'],
+                after=ranges['after'])
 
-    def fetchComments(self):
-        print('Fetching comments...')
-        for submission in self.subreddit.top():
-            for comment in self.getAllComments(submission):
-                if hasattr(comment, 'body'):
-                    text += comment.body
+        batch_count = 0
+        text = ''
+        # generator returns in batches of 50
+        for g in gen:
+            try:
+                text+=(g.body+' ')
+            except:
+                pass
+        return text
 
-d = DataCrawler()
-d.fetchComments()
+    def filter_words(self, text):
+        # split into words
+        tokens = word_tokenize(text)
+        # convert to lower case
+        tokens = [w.lower() for w in tokens]
+        # remove punctuation from each word
+        table = str.maketrans('', '', string.punctuation)
+        stripped = [w.translate(table) for w in tokens]
+        # remove remaining tokens that are not alphabetic
+        words = [word for word in stripped if word.isalpha()]
+        # filter out stop words
+        stop_words = set(stopwords.words('english'))
+        words = [w for w in words if not w in stop_words]
+
+        return words
+
+    def count_freq(self, words):
+        d = {}
+        word_count = 0
+        for w in words:
+            if w not in d:
+                d[w] = 0
+                word_count += 1
+            d[w] += 1
+
+        sorted_d = sorted(d.items(), key=itemgetter(1))[::-1]
+
+        return sorted_d
+
+    def run(self):
+        with Pool(len(self.date_ranges)) as p:
+            l = p.map(self.fetch, self.date_ranges)
+        all_text = ''.join(l)
+        
+        filtered_words = self.filter_words(all_text)
+
+        freq = self.count_freq(filtered_words)
+
+        return freq
+
