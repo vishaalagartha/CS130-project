@@ -1,5 +1,6 @@
 # https://github.com/cjhutto/vaderSentiment#python-code-example
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import re
 
 class SentimentModel:
     def __init__(self, comments, params):
@@ -11,14 +12,17 @@ class SentimentModel:
         # Get comments
         # Grab comments that have specific word
         print('handling comments')
+        
+        #parse through comments using Subject-Predicate-Object and split comment into phrases
+        #return phrases.
 
-        comments_ = ["VADER is smart, handsome, and funny.",  # positive sentence example
-             "VADER is smart, handsome, and funny!",  # punctuation emphasis handled correctly (sentiment intensity adjusted)
-             "VADER is very smart, handsome, and funny.", # booster words handled correctly (sentiment intensity adjusted)
-             "VADER is VERY SMART, handsome, and FUNNY.",  # emphasis for ALLCAPS handled
-             "VADER is VERY SMART, handsome, and FUNNY!!!", # combination of signals - VADER appropriately adjusts intensity
-             "VADER is VERY SMART, uber handsome, and FRIGGIN FUNNY!!!", # booster words & punctuation make this close to ceiling for score
-             "VADER is not smart, handsome, nor funny.",  # negation sentence example
+        comments_ = ["VADER is smart, VADER is handsome, and VADER is funny.",  # positive sentence example
+             "VADER is smart, VADER is handsome, and VADER is funny!",  # punctuation emphasis handled correctly (sentiment intensity adjusted)
+             "VADER is very smart, and Vader is very handsome and Vader is very funny.", # booster words handled correctly (sentiment intensity adjusted)
+             "VADER is VERY SMART, VADER is VERY handsome, and VADER is VERY FUNNY.",  # emphasis for ALLCAPS handled
+             "VADER is VERY SMART, VADER is VERY handsome, and VADER is VERY FUNNY!!!", # combination of signals - VADER appropriately adjusts intensity
+             "VADER is VERY SMART, VADER is uber handsome, and VADER is FRIGGIN FUNNY!!!", # booster words & punctuation make this close to ceiling for score
+             "VADER is not smart, VADER is not handsome, VADER is not funny.",  # negation sentence example
              "The book was good.",  # positive sentence
              "At least it isn't a horrible book.",  # negated negative sentence with contraction
              "The book was only kind of good.", # qualified positive sentence is handled correctly (intensity adjusted)
@@ -29,6 +33,7 @@ class SentimentModel:
              "Catch utf-8 emoji such as such as 💘 and 💋 and 😁",  # emojis handled
              "Not bad at all",  # Capitalized negation,
              ]
+        print(comments_)
         return comments_  
 
     def generateSentiments(self, sentences):
