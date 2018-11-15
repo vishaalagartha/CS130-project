@@ -1,53 +1,43 @@
-import nltk.classify.util
-import words
-#from data_crawler import DataCrawler
-from nltk.classify import NaiveBayesClassifier
-from nltk.corpus import names
+# https://github.com/cjhutto/vaderSentiment#python-code-example
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
+class SentimentModel:
+    def __init__(self, comments, params):
+        self.comments_ = self.handleComments(comments)
+        self.model_ = SentimentIntensityAnalyzer()
+        self.params_ = params
 
-def word_feats(words):
-    return dict([(word, True) for word in words])
+    def handleComments(self, comments):
+        # Get comments
+        # Grab comments that have specific word
+        print('handling comments')
 
+        comments_ = ["VADER is smart, handsome, and funny.",  # positive sentence example
+             "VADER is smart, handsome, and funny!",  # punctuation emphasis handled correctly (sentiment intensity adjusted)
+             "VADER is very smart, handsome, and funny.", # booster words handled correctly (sentiment intensity adjusted)
+             "VADER is VERY SMART, handsome, and FUNNY.",  # emphasis for ALLCAPS handled
+             "VADER is VERY SMART, handsome, and FUNNY!!!", # combination of signals - VADER appropriately adjusts intensity
+             "VADER is VERY SMART, uber handsome, and FRIGGIN FUNNY!!!", # booster words & punctuation make this close to ceiling for score
+             "VADER is not smart, handsome, nor funny.",  # negation sentence example
+             "The book was good.",  # positive sentence
+             "At least it isn't a horrible book.",  # negated negative sentence with contraction
+             "The book was only kind of good.", # qualified positive sentence is handled correctly (intensity adjusted)
+             "The plot was good, but the characters are uncompelling and the dialog is not great.", # mixed negation sentence
+             "Today SUX!",  # negative slang with capitalization emphasis
+             "Today only kinda sux! But I'll get by, lol", # mixed sentiment example with slang and constrastive conjunction "but"
+             "Make sure you :) or :D today!",  # emoticons handled
+             "Catch utf-8 emoji such as such as 💘 and 💋 and 😁",  # emojis handled
+             "Not bad at all",  # Capitalized negation,
+             ]
+        return comments_  
 
-#params = {'subreddit': 'politics', 'start': 1541700088, 'end': 1541700188}
-#crawler = DataCrawler(params)
-#freqs = crawler.run()
-#print(freqs)
- 
-# positive_vocab = [ 'awesome', 'outstanding', 'fantastic', 'terrific', 'good', 'nice', 'great', '🙂' ]
-# negative_vocab = [ 'bad', 'terrible','useless', 'hate', '😞' ]
-positive_vocab = words.POSITIVE_WORDS
-negative_vocab = words.NEGATIVE_WORDS
+    def generateSentiments(self, sentences):
+        print('generating sentiments')
+        # Run it through the SentimentIntensityAnalyzer
+        for sentence in sentences:
+            vs = self.model_.polarity_scores(sentence)
+            print("{:-<65} {}".format(sentence, str(vs)))
+            print()
 
-positive_features = [(word_feats(pos), 'pos') for pos in positive_vocab]
-negative_features = [(word_feats(neg), 'neg') for neg in negative_vocab]
-
- 
-# Predict
-neg = 0
-pos = 0
-# sentence = "Bad movie, a hate it. terrible"
-sentence = 'All work and no play makes jack dull boy. All work and no play makes jack a dull boy.'
-sentence = sentence.lower()
-words = sentence.split(' ')
-neutral_vocab=[]
-for word in words:
-	if word not in positive_vocab:
-		if word not in negative_vocab:
-			neutral_vocab.append(word)
-
-neutral_features = [(word_feats(neu), 'neu') for neu in neutral_vocab]
- 
-train_set = negative_features + positive_features + neutral_features
-classifier = NaiveBayesClassifier.train(train_set) 
-
-for word in words:
-	if len(word) > 1:
-		classResult = classifier.classify( word_feats(word))
-		if classResult == 'neg':
-			neg = neg + 1
-		if classResult == 'pos':
-			pos = pos + 1
- 
-print('Positive: ' + str(float(pos)/len(words)))
-print('Negative: ' + str(float(neg)/len(words)))
+    def sendSentiments(self):
+        print('sending sentiments')
