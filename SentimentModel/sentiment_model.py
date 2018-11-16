@@ -1,6 +1,6 @@
 # https://github.com/cjhutto/vaderSentiment#python-code-example
-import re
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import re
 
 class SentimentModel:
     def __init__(self, comments, params):
@@ -9,9 +9,7 @@ class SentimentModel:
         self.params_ = params
 
     def handleComments(self, comments):
-        # Get comments
         # Grab comments that have specific word
-
         #parse through comments using Subject-Predicate-Object and split comment into phrases
         #still under work
 
