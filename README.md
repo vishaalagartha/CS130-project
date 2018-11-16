@@ -10,3 +10,9 @@ DataCrawler Module
   - data_crawler.py: the DataCrawler class
   - constants.py: COMMON_WORDS (not currently implemented) and default endpoints
   - test.py: all unittest cases
+
+Sentiment Analysis Module
+  - negative-words.csv: List of 4000+ negative sentiment words
+  - positive-words.csv: List of 2000+ positive sentiment words
+  - sentiment_model: SentimentModel class currently using an external API for sentiment analysis
+  - words.py: load csv files into lists
