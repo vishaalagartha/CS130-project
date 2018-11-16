@@ -1,4 +1,5 @@
 import json, http.client
+from functools import partial
 from constants import SENTIMENT_ANALYZER_ENDPOINT
 from data_crawler import DataCrawler
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -57,5 +58,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     port = 8080
     print('Listening on localhost:%s' % port)
-    server = HTTPServer(('', port), RequestHandler)
+    handler = partial(RequestHandler, True)
+    server = HTTPServer(('', port), handler)
     server.serve_forever()
