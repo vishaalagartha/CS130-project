@@ -54,8 +54,16 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_words(freq)
         else:
             self.send_error(400, 'Invalid parameters supplied')
+
+    def do_OPTIONS(self):
+        self.send_response(200, 'ok')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
         
-if __name__ == "__main__":
+if __name__ == '__main__':
     port = 8080
     print('Listening on localhost:%s' % port)
     handler = partial(RequestHandler, True)
