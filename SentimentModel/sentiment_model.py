@@ -1,4 +1,5 @@
 # https://github.com/cjhutto/vaderSentiment#python-code-example
+import re
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 class SentimentModel:
@@ -10,34 +11,35 @@ class SentimentModel:
     def handleComments(self, comments):
         # Get comments
         # Grab comments that have specific word
-        print('handling comments')
 
-        comments_ = ["VADER is smart, handsome, and funny.",  # positive sentence example
-             "VADER is smart, handsome, and funny!",  # punctuation emphasis handled correctly (sentiment intensity adjusted)
-             "VADER is very smart, handsome, and funny.", # booster words handled correctly (sentiment intensity adjusted)
-             "VADER is VERY SMART, handsome, and FUNNY.",  # emphasis for ALLCAPS handled
-             "VADER is VERY SMART, handsome, and FUNNY!!!", # combination of signals - VADER appropriately adjusts intensity
-             "VADER is VERY SMART, uber handsome, and FRIGGIN FUNNY!!!", # booster words & punctuation make this close to ceiling for score
-             "VADER is not smart, handsome, nor funny.",  # negation sentence example
-             "The book was good.",  # positive sentence
-             "At least it isn't a horrible book.",  # negated negative sentence with contraction
-             "The book was only kind of good.", # qualified positive sentence is handled correctly (intensity adjusted)
-             "The plot was good, but the characters are uncompelling and the dialog is not great.", # mixed negation sentence
-             "Today SUX!",  # negative slang with capitalization emphasis
-             "Today only kinda sux! But I'll get by, lol", # mixed sentiment example with slang and constrastive conjunction "but"
-             "Make sure you :) or :D today!",  # emoticons handled
-             "Catch utf-8 emoji such as such as 💘 and 💋 and 😁",  # emojis handled
-             "Not bad at all",  # Capitalized negation,
-             ]
-        return comments_  
+        #parse through comments using Subject-Predicate-Object and split comment into phrases
+        #still under work
 
-    def generateSentiments(self, sentences):
-        print('generating sentiments')
+        #return phrases.
+        phrases = []
+        for comment in comments:
+            phrase = re.split('; |, |and |but |or |nor ', comment)
+            # phrases.append([word for word in phrase])
+
+            for j in phrase:
+                phrases.append(j)
+        return phrases  
+
+    def generateSentiments(self, word):
         # Run it through the SentimentIntensityAnalyzer
-        for sentence in sentences:
-            vs = self.model_.polarity_scores(sentence)
-            print("{:-<65} {}".format(sentence, str(vs)))
-            print()
+        related_phrases = []
+        for phrase in self.comments_:
+            if word.lower() in phrase.lower():
+                related_phrases.append(phrase)
+
+        # sentiment_values = []
+        for i in related_phrases:
+            vs = self.model_.polarity_scores(i)
+            # sentiment_values.append(vs)
+            print("{:-<65} {}".format(i, str(vs)))
+
+        # return sentiment_values
 
     def sendSentiments(self):
         print('sending sentiments')
+        #to be implement after talking with front end team members
