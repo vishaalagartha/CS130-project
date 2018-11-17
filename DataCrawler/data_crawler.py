@@ -1,6 +1,4 @@
-import string, json
-from multiprocessing import Pool
-from psaw import PushshiftAPI
+import string, json, requests
 from constants import COMMON_WORDS 
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -12,28 +10,32 @@ class DataCrawler:
         self.start_date = params['start']
         self.end_date = params['end']
 
-        # calculate number of threads
-        nthreads = 5
-        size = int((self.end_date-self.start_date)/nthreads)
-        self.date_ranges = []
-        end_date = self.end_date
-        while end_date>self.start_date:
-            self.date_ranges.append({'after': end_date-size, 'before': end_date})
-            end_date -= size
-
-    def fetch(self, ranges):
-        gen = PushshiftAPI().search_comments(subreddit=self.subreddit, before=ranges['before'],
-                after=ranges['after'])
-
-        batch_count = 0
+    def fetch(self):
+        last_date = self.start_date
         text = ''
-        # generator returns in batches of 50
-        for g in gen:
-            try:
-                text+=(g.body+' ')
-            except:
-                pass
-        return text
+        comments = []
+
+        while last_date<=self.end_date:
+            query_str = 'https://api.pushshift.io/reddit/search/comment/?subreddit=' \
+            + str(self.subreddit) \
+            + '&after=' + str(last_date) \
+            + '&before=' + str(self.end_date) \
+            + '&size=500'
+
+            resp = requests.get(query_str)
+
+            data = resp.json()['data']
+            for comment in data:
+                if comment['created_utc']>last_date:
+                    last_date = comment['created_utc']
+                text+=(comment['body'] + ' ')
+                c = comment['body'].replace('\n', '').replace('\r', '')
+                comments.append((c, comment['score']))
+
+            if len(data)==0:
+                break
+
+        return text, comments
 
     def filter_words(self, text):
         # split into words
@@ -65,13 +67,8 @@ class DataCrawler:
         return sorted_d
 
     def run(self):
-        with Pool(len(self.date_ranges)) as p:
-            l = p.map(self.fetch, self.date_ranges)
-        all_text = ''.join(l)
-        
+        all_text, comments = self.fetch()
         filtered_words = self.filter_words(all_text)
-
         freq = self.count_freq(filtered_words)
 
-        return freq
-
+        return freq, comments

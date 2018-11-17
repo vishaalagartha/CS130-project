@@ -8,12 +8,28 @@ class TestServer(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         post_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
-        expected_data = ['nt', 'markets', 'certain', 'see', 'guess',
-                'months', 'two', 'take', 'think', 'lol', 'snow', 'sport',
-                'winter', 'parity', 'ca', 'options', 'entertainment', 'find',
-                'need', 'like', 'nba']
+        expected_data = [["I guess we'll see", 1], 
+        ['chandler is like 93% tatoos', 1], 
+        ['Lol you think it’ll take two months', 1], 
+        ["""This is the problem with the max contracts. It means that a guy like
+        John Wall or Kyle Lowry are worth the same as Lebron or KD. 
+                Which is kind of nuts. I feel like it'd help league parity if 
+                they uncapped contracts, and just told players you can get paid 
+                99.9% of your teams cap, but enjoy being on the shittiest team 
+                in basketball. Then you'd get guys to spread out and go for 
+                their money while others decide they'll take a more moderate 
+                amount to have a good team.  """, 1], ["""All teams have unluckiness 
+                of injuries or losing to better teams. Saying that Cleveland 
+                wasnt lucky because of those two things doesn't negate the luck 
+                of getting a LeBron or having 3 number one picks in 4 years. """,
+                1], ["""90s Bulls were nowhere near this level of everyone 
+                    thinking they're shoe-ins for the finals and a title.""", 1],
+                ["""This is just how the NBA is. If you don't like it then you 
+                    need to find other entertainment options.  You can't have 
+                    parity in a winter sport where certain markets have snow and 
+                    certain markets don't.""", 1]]
 
-        if post_data==expected_data: 
+        if len(expected_data)==len(post_data):
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
@@ -83,7 +99,7 @@ class TestDataCrawler(unittest.TestCase):
     def test_subreddits(self):
         params = {'subreddit': 'politics', 'start': 1541700088, 'end': 1541700188}
         crawler = DataCrawler(params)
-        freqs = crawler.run()
+        freqs, comments = crawler.run()
         for word in freqs:
             if word[0]=='trump':
                 word_that_should_exist = word
@@ -93,7 +109,7 @@ class TestDataCrawler(unittest.TestCase):
 
         params = {'subreddit': 'javascript', 'start': 1541600088, 'end': 1541700188}
         crawler = DataCrawler(params)
-        freqs = crawler.run()
+        freqs, comments = crawler.run()
         for word in freqs:
             if word[0]=='code':
                 word_that_should_exist = word
@@ -103,7 +119,7 @@ class TestDataCrawler(unittest.TestCase):
 
         params = {'subreddit': 'ucla', 'start': 1541500088, 'end': 1541700188}
         crawler = DataCrawler(params)
-        freqs = crawler.run()
+        freqs, comments = crawler.run()
         for word in freqs:
             if word[0]=='quarter':
                 word_that_should_exist = word

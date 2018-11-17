@@ -21,24 +21,23 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         return True
 
-    def _crawl(self, post_data):
+    def crawl(self, post_data):
         crawler = DataCrawler(post_data)
-        freq = crawler.run()
-        return freq
+        freqs, comments = crawler.run()
+        return freqs, comments
 
-    def send_freq(self, freq):
+    def send_freqs(self, freqs):
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
-        data = json.dumps(freq).encode('utf-8')
+        data = json.dumps(freqs).encode('utf-8')
         self.wfile.write(data)
 
-    def send_words(self, freq):
-        words = [i[0] for i in freq]
+    def send_comments(self, comments):
         connection = http.client.HTTPConnection(self.client_endpoint,
                 port=self.client_port)
         headers = {'Content-type': 'application/json'}
-        json_words = json.dumps(words)
+        json_words = json.dumps(comments)
         connection.request('POST', '/', json_words, headers)
         response = connection.getresponse()
         if response.status!=200:
@@ -49,9 +48,9 @@ class RequestHandler(BaseHTTPRequestHandler):
         post_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
 
         if self.validated(post_data):
-            freq = self._crawl(post_data)
-            self.send_freq(freq)
-            self.send_words(freq)
+            freqs, comments = self.crawl(post_data)
+            self.send_freqs(freqs)
+            self.send_comments(comments)
         else:
             self.send_error(400, 'Invalid parameters supplied')
 
