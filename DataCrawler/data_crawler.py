@@ -1,4 +1,5 @@
-import string, json, requests
+import asyncio, string, json, requests
+from functools import partial
 from constants import COMMON_WORDS 
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -10,16 +11,16 @@ class DataCrawler:
         self.start_date = params['start']
         self.end_date = params['end']
 
-    def fetch(self):
-        last_date = self.start_date
+    def fetch(self, date_range):
+        last_date = date_range['after']
         text = ''
         comments = []
 
-        while last_date<=self.end_date:
+        while last_date<=date_range['before']:
             query_str = 'https://api.pushshift.io/reddit/search/comment/?subreddit=' \
             + str(self.subreddit) \
             + '&after=' + str(last_date) \
-            + '&before=' + str(self.end_date) \
+            + '&before=' + str(date_range['before']) \
             + '&size=500'
 
             resp = requests.get(query_str)
@@ -66,9 +67,59 @@ class DataCrawler:
 
         return sorted_d
 
-    def run(self):
+    def get_num_comments(self):
+        query_str = 'https://api.pushshift.io/reddit/search/comment/?subreddit=' \
+        + str(self.subreddit) \
+        + '&after=' + str(self.start_date) \
+        + '&before=' + str(self.end_date) \
+        + '&aggs=created_utc&size=0' 
+
+        resp = requests.get(query_str)
+        data = resp.json()['aggs']['created_utc']
+
+        num_comments = 0
+        for d in data:
+            num_comments+=d['doc_count']
+
+        return num_comments
+
+    def get_date_ranges(self, num_comments):
+        # set each thread to make 1 get
+        num_requests = 2
+        # set chunk_size
+        nthreads = num_comments/(500*num_requests)
+        
+        chunk_size = int((self.end_date-self.start_date)/nthreads)
+        date_ranges = []
+        end_date = self.end_date
+        while end_date>self.start_date:
+            date_ranges.append({'after': end_date-chunk_size, 'before': end_date})
+            end_date -= chunk_size 
+
+        return date_ranges
+
+    async def run(self):
+
+        num_comments = self.get_num_comments()
+        ranges = self.get_date_ranges(num_comments)
+        print(ranges)
+        futures = [loop.run_in_executor(None, partial(self.fetch, r)) \
+                for r in ranges]
+        results = await asyncio.gather(*futures)
+        for (i, result) in zip(ranges, results):
+                print(i, result)
+
+
+        '''
         all_text, comments = self.fetch()
         filtered_words = self.filter_words(all_text)
         freq = self.count_freq(filtered_words)
 
         return freq, comments
+        '''
+
+params = {'subreddit': 'nba', 'start': 1542559020, 'end': 1542559028}
+d = DataCrawler(params)
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(d.run())
