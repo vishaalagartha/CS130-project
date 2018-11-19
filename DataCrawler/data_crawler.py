@@ -1,4 +1,4 @@
-import asyncio, string, json, requests
+import asyncio, string, json, requests, time
 from functools import partial
 from constants import COMMON_WORDS 
 from nltk.corpus import stopwords
@@ -25,16 +25,17 @@ class DataCrawler:
 
             resp = requests.get(query_str)
 
-            data = resp.json()['data']
-            for comment in data:
-                if comment['created_utc']>last_date:
-                    last_date = comment['created_utc']
-                text+=(comment['body'] + ' ')
-                c = comment['body'].replace('\n', '').replace('\r', '')
-                comments.append((c, comment['score']))
+            if resp.status_code==200:
+                data = resp.json()['data']
+                for comment in data:
+                    if comment['created_utc']>last_date:
+                        last_date = comment['created_utc']
+                    text+=(comment['body'] + ' ')
+                    c = comment['body'].replace('\n', '').replace('\r', '')
+                    comments.append((c, comment['score']))
 
-            if len(data)==0:
-                break
+                if len(data)==0:
+                    break
 
         return text, comments
 
@@ -85,7 +86,7 @@ class DataCrawler:
 
     def get_date_ranges(self, num_comments):
         # set each thread to make 1 get
-        num_requests = 2
+        num_requests = 1
         # set chunk_size
         nthreads = num_comments/(500*num_requests)
         
@@ -98,28 +99,24 @@ class DataCrawler:
 
         return date_ranges
 
-    async def run(self):
-
+    async def async_fetch(self):
         num_comments = self.get_num_comments()
         ranges = self.get_date_ranges(num_comments)
-        print(ranges)
-        futures = [loop.run_in_executor(None, partial(self.fetch, r)) \
+        futures = [self.loop.run_in_executor(None, partial(self.fetch, r)) \
                 for r in ranges]
         results = await asyncio.gather(*futures)
-        for (i, result) in zip(ranges, results):
-                print(i, result)
-
-
-        '''
-        all_text, comments = self.fetch()
+        all_text = ''
+        comments = []
+        for r in results:
+            all_text+=(r[0] + ' ')
+            comments+=r[1]
         filtered_words = self.filter_words(all_text)
         freq = self.count_freq(filtered_words)
 
         return freq, comments
-        '''
 
-params = {'subreddit': 'nba', 'start': 1542559020, 'end': 1542559028}
-d = DataCrawler(params)
+    def run(self):
+        self.loop = asyncio.get_event_loop()
+        freq, comments = self.loop.run_until_complete(self.async_fetch())
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(d.run())
+        return freq, comments
