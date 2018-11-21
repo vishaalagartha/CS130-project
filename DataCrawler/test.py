@@ -13,6 +13,7 @@ class TestServer(BaseHTTPRequestHandler):
     SentimentModel
     """
     def do_POST(self):
+        print('hello world')
         """
         Handles a POST request to ensure DataCrawler server sends appropriate
         data.
@@ -41,13 +42,22 @@ class TestServer(BaseHTTPRequestHandler):
                     need to find other entertainment options.  You can't have 
                     parity in a winter sport where certain markets have snow and 
                     certain markets don't.""", 1]]
+        print(len(expected_data), len(post_data))
+        print(expected_data)
+        print(post_data)
 
         if len(expected_data)==len(post_data):
+            print('here')
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
         else:
+            print('here 2')
             self.send_response(400, 'Bad data provided')
+
+def start_server(server):
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    server.serve_forever()
 
 
 class TestDataCrawler(unittest.TestCase):
@@ -55,27 +65,26 @@ class TestDataCrawler(unittest.TestCase):
     Test cases for the DataCrawler class. This class subclasses from
     unittest.TestCase
     """
-    """
     def test_server(self):
         server_port = 8080
         test_server_port = 8081
 
         handler = partial(RequestHandler, True)
         server = HTTPServer(('', server_port), handler)
-        server_thread = threading.Thread(target=server.serve_forever)
+        server_thread = threading.Thread(target=start_server, args=(server,))
         server_thread.daemon = True
         server_thread.start()
 
         test_server = HTTPServer(('', test_server_port), TestServer)
-        test_server_thread = threading.Thread(target=test_server.serve_forever)
+        test_server_thread = threading.Thread(target=start_server,
+                args=(test_server,))
         test_server_thread.daemon = True
 
-
-        server_thread.start()
         test_server_thread.start()
 
+        '''
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
-            'start': 1541266100, 'end': 1541266115})
+            'start': 1541266110, 'end': 1541266115})
         self.assertEqual(200, r.status_code)
 
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
@@ -92,10 +101,9 @@ class TestDataCrawler(unittest.TestCase):
             'start': 'hello this is bad', 'end': 1541266115})
 
         self.assertEqual(400, r.status_code)
+        '''
         test_server.shutdown()
-        server_thread.join()
         server.shutdown()
-    """
 
     def test_filter_words(self):
         """
