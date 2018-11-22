@@ -1,11 +1,24 @@
-import unittest, requests, json, threading
+"""
+Unit tests for DataCrawler module
+"""
+import unittest, requests, json, threading, asyncio
 from functools import partial
 from data_crawler import DataCrawler
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from server import RequestHandler
 
 class TestServer(BaseHTTPRequestHandler):
+    """
+    Instance of a TestServer to be used as a test endpoint for the
+    SentimentModel
+    """
     def do_POST(self):
+        """
+        Handles a POST request to ensure DataCrawler server sends appropriate
+        data.
+
+        :return: Returns none
+        """
         content_length = int(self.headers['Content-Length'])
         post_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
         expected_data = [["I guess we'll see", 1], 
@@ -36,23 +49,31 @@ class TestServer(BaseHTTPRequestHandler):
         else:
             self.send_response(400, 'Bad data provided')
 
+def start_server(server):
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    server.serve_forever()
+
 
 class TestDataCrawler(unittest.TestCase):
+    """
+    Test cases for the DataCrawler class. This class subclasses from
+    unittest.TestCase
+    """
     def test_server(self):
         server_port = 8080
         test_server_port = 8081
 
         handler = partial(RequestHandler, True)
         server = HTTPServer(('', server_port), handler)
-        server_thread = threading.Thread(target=server.serve_forever)
+        server_thread = threading.Thread(target=start_server, args=(server,))
         server_thread.daemon = True
+        server_thread.start()
 
         test_server = HTTPServer(('', test_server_port), TestServer)
-        test_server_thread = threading.Thread(target=test_server.serve_forever)
+        test_server_thread = threading.Thread(target=start_server,
+                args=(test_server,))
         test_server_thread.daemon = True
 
-
-        server_thread.start()
         test_server_thread.start()
 
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
@@ -73,11 +94,16 @@ class TestDataCrawler(unittest.TestCase):
             'start': 'hello this is bad', 'end': 1541266115})
 
         self.assertEqual(400, r.status_code)
-        server.shutdown()
         test_server.shutdown()
-
+        server.shutdown()
 
     def test_filter_words(self):
+        """
+        Test if words are filtered properly by the DataCrawler. Words should be
+        tokenized, unpunctuated, uncapitalized, and filtered to remove stopwords
+
+        :return: Returns none
+        """
         params = {'subreddit': 'nba', 'start': 10000, 'end': 20000}
         crawler = DataCrawler(params)
         unfiltered = 'All work and no play makes jack dull boy. All work and no play makes jack a dull boy.'
@@ -86,7 +112,13 @@ class TestDataCrawler(unittest.TestCase):
 
         self.assertListEqual(result, filtered)
 
+
     def test_count_freq(self):
+        """
+        Test if words are counted properly.
+
+        :return: Returns none
+        """
         params = {'subreddit': 'nba', 'start': 10000, 'end': 20000}
         crawler = DataCrawler(params)
 
@@ -97,6 +129,13 @@ class TestDataCrawler(unittest.TestCase):
         self.assertListEqual(result, freqs)
 
     def test_subreddits(self):
+        """
+        Test if individual subreddits have high frequencies of relevant words.
+
+        :return: Returns none
+        """
+
+        # Test 1: r/politics should have 'trump' more than 20 times
         params = {'subreddit': 'politics', 'start': 1541700088, 'end': 1541700188}
         crawler = DataCrawler(params)
         freqs, comments = crawler.run()
@@ -107,6 +146,7 @@ class TestDataCrawler(unittest.TestCase):
         self.assertEqual(word_that_should_exist[0], 'trump')
         self.assertGreaterEqual(word_that_should_exist[1], 20) 
 
+        # Test 2: r/javascript should have 'code' more than 50 times
         params = {'subreddit': 'javascript', 'start': 1541600088, 'end': 1541700188}
         crawler = DataCrawler(params)
         freqs, comments = crawler.run()
@@ -117,6 +157,7 @@ class TestDataCrawler(unittest.TestCase):
         self.assertEqual(word_that_should_exist[0], 'code')
         self.assertGreaterEqual(word_that_should_exist[1], 50) 
 
+        # Test 3: r/ucla should have 'code' more than 50 times
         params = {'subreddit': 'ucla', 'start': 1541500088, 'end': 1541700188}
         crawler = DataCrawler(params)
         freqs, comments = crawler.run()

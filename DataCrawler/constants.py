@@ -1,5 +1,8 @@
-SENTIMENT_ANALYZER_ENDPOINT = '127.0.0.1:8081'
+"""
+File containing constants used by DataCrawler module
+"""
 
+# TODO: Should DataCrawler filter out these words? 
 COMMON_WORDS = ['the', 'of', 'and', 'to', 'a', 'in', 'for', 'is', 'on', 'that',
 'by', 'this', 'with', 'i', 'you', 'it', 'not', 'or', 'be', 'are',
 'from', 'at', 'as', 'your', 'all', 'have', 'new', 'more', 'an', 'was',
