@@ -13,7 +13,6 @@ class TestServer(BaseHTTPRequestHandler):
     SentimentModel
     """
     def do_POST(self):
-        print('hello world')
         """
         Handles a POST request to ensure DataCrawler server sends appropriate
         data.
@@ -42,17 +41,12 @@ class TestServer(BaseHTTPRequestHandler):
                     need to find other entertainment options.  You can't have 
                     parity in a winter sport where certain markets have snow and 
                     certain markets don't.""", 1]]
-        print(len(expected_data), len(post_data))
-        print(expected_data)
-        print(post_data)
 
         if len(expected_data)==len(post_data):
-            print('here')
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
         else:
-            print('here 2')
             self.send_response(400, 'Bad data provided')
 
 def start_server(server):
@@ -82,9 +76,8 @@ class TestDataCrawler(unittest.TestCase):
 
         test_server_thread.start()
 
-        '''
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
-            'start': 1541266110, 'end': 1541266115})
+            'start': 1541266100, 'end': 1541266115})
         self.assertEqual(200, r.status_code)
 
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
@@ -101,7 +94,6 @@ class TestDataCrawler(unittest.TestCase):
             'start': 'hello this is bad', 'end': 1541266115})
 
         self.assertEqual(400, r.status_code)
-        '''
         test_server.shutdown()
         server.shutdown()
 

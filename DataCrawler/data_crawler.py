@@ -3,7 +3,7 @@ The DataCrawler class can be used to asynchronously fetch comments from a
 specific subreddit between two timestamps.
 """
 
-import asyncio, string, json, requests, time
+import asyncio, string, json, requests, time, math
 from functools import partial
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -145,14 +145,19 @@ class DataCrawler:
         # set each thread to make 1 get
         num_requests = 1
         # set chunk_size
-        nthreads = num_comments/(500*num_requests)
+        nthreads = math.ceil(num_comments/(500*num_requests))
         
         chunk_size = int((self.end_date-self.start_date)/nthreads)
         date_ranges = []
-        end_date = self.end_date
-        while end_date>self.start_date:
-            date_ranges.append({'after': end_date-chunk_size, 'before': end_date})
-            end_date -= chunk_size 
+        after = self.start_date
+        before = self.start_date+chunk_size
+        while before<=self.end_date:
+            date_ranges.append({'after': after, 'before': before})
+            after+=chunk_size
+            before+=chunk_size
+
+        if before<self.end_date:
+            date_ranges.append({'after': before, 'before': self.end_date})
 
         return date_ranges
 
