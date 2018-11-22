@@ -1,3 +1,12 @@
+/*
+	TODO:
+		1. add inwards force
+		2. add color
+		3. add ability to click/drag words
+		4. clean up/refactor
+		5. figure out communication with sentiment charts
+*/
+
 var dict = {
   Lorem:1,
   ipsum:2,
@@ -11,6 +20,8 @@ var dict = {
   do:10,
 }
 
+var colorBaseOptions = [];
+
 var scalar = 0.82; // Different for each font
 var debug = false;
 
@@ -21,12 +32,17 @@ var font,
 var spawnBoxSize = 30;
 
 var spring = 0.5;
-var force = 500000;
+var force = 80000;
   
 var x,y, cloud;
 
+var numColors = 10;
+var colorMinOffset = 10;
+var colorMaxOffset = 65;
+
 class wordCloud {
   constructor(wordDict) {
+  
     this.wordDict = wordDict;
     this.wordBoxes = [];
     /*
@@ -57,6 +73,8 @@ class wordCloud {
     	new Rectangle(0, height, width, height)
     ];
 
+    var baseColor = colorBaseOptions[Math.floor(Math.random() * colorBaseOptions.length)];
+
     var maxFreq = 0;
     for (const [word, freq] of Object.entries(wordDict)) {
       if (freq > maxFreq) {
@@ -64,7 +82,7 @@ class wordCloud {
       }
     }
     for (const [word, freq] of Object.entries(wordDict)) {
-      this.wordBoxes.push(new wordBox(word, freq, maxFreq));
+      this.wordBoxes.push(new wordBox(word, freq, maxFreq, this.getProceduralColor(baseColor, colorMinOffset, colorMaxOffset)));
     }
   }
 
@@ -93,17 +111,27 @@ class wordCloud {
 
   handleBoundary() {
   	for (var i = 0; i < this.wordBoxes.length; i++) {
-		for (var j = 0; j < this.boundaries.length; j++) {
-			this.wordBoxes[i].handleBoundary(this.boundaries[j]);
-		}
+			for (var j = 0; j < this.boundaries.length; j++) {
+				this.wordBoxes[i].handleBoundary(this.boundaries[j]);
+			}
   	}
   }
 
+	getProceduralColor(colorBase, min, max) {
+		return color(this.procColorHelper(red(colorBase), min, max),
+								 this.procColorHelper(green(colorBase), min, max),
+								 this.procColorHelper(blue(colorBase), min, max))
+	}
 
+	procColorHelper(val, min, max) {
+		var temp = val + (Math.random() * ((max*2) - (min*2))) - max;
+		temp = Math.floor(temp <= 0 ? temp - min : temp + min);
+		return temp;
+	}
 }
 
 class wordBox {
-  constructor(text, freq, maxFreq) {
+  constructor(text, freq, maxFreq, color) {
     this.text = text;
     this.freq = freq;
     this.maxFreq = maxFreq;
@@ -116,10 +144,12 @@ class wordBox {
     						  textWidth(text), 
     						  this.fontSize * scalar);
     this.yOffset = this.fontSize * (1 - scalar);
+    this.color = color;
   }
 
   render() {
     textSize(this.fontSize);
+    fill(this.color);
     text(this.text, this.rect.x, this.rect.y - this.yOffset);
     if (debug) {
       this.rect.render();
@@ -161,12 +191,10 @@ class Rectangle {
 
   handleCollision(other) {
     if (!this.collides(other)) {
-      // console.log('no collision');
       return
     }
-    // console.log("here");
-    var dx = this.getDX(this, other),
-        dy = this.getDY(this, other);
+    var dx = this.midX - other.midX,
+        dy = this.midY - other.midY;
     var threshold = 1.0;
     if (dx < threshold && dx >= 0) {
       dx = threshold;
@@ -182,8 +210,8 @@ class Rectangle {
 
     // var constvx = force * spring * dx / distance / distance,
     // 	constvy = force * spring * dy / distance / distance;
-    var constvx = force * spring / dx / Math.pow(Math.abs(dx), 1),
-    	constvy = force * spring / dy / Math.pow(Math.abs(dy), 1);
+    var constvx = force * spring / dx, // Math.abs(dx),
+    	constvy = force * spring / dy; // Math.abs(dy);
 
     var areaScale1 = pow(this.area(), 0.3);
     var areaScale2 = pow(other.area(), 0.3);
@@ -196,29 +224,30 @@ class Rectangle {
   }
 
   getDX(rect1, rect2) {
-  	return rect1.midX - rect2.midX;
+  	return ;
   }
 
   getDY(rect1, rect2) {
-  	return rect1.midY - rect2.midY;
+  	return ;
   }
 
-  getDX2(rect1, rect2) {
-
-  }
-
-  getDY2(rect1, rect2) {
-
+  addInwardsForce() {
+  	var forceStrength = 0.0001;
+  	var centerX = width / 2;
+  	var centerY = height / 2;
+  	var fX = centerX - this.midX;
+  	var fY = centerY - this.midY;
+  	this.vx += fX * forceStrength;
+  	this.vy += fY * forceStrength;
   }
 
   move() {
-  	var drag = 0.3;
+  	// this.addInwardsForce();
+  	var drag = 0.4;
     this.x += this.vx;
     this.y += this.vy;
     this.midX = this.x + this.w / 2;
     this.midY = this.y + this.h / 2;
-    // this.vx = 0;
-    // this.vy = 0;
     this.vx = this.vx * drag;
     this.vy = this.vx * drag;
   }
@@ -237,8 +266,13 @@ function setup() {
   textSize(fontSize);
   textAlign(LEFT, TOP);
   textLeading(0);
-  x=new wordBox("pooE", 5, 10);
-  y=new wordBox("eggs", 10, 10);
+	colorBaseOptions = [
+		color(0, 51, 204),
+		color(51, 204, 51),
+		color(255, 153, 51),
+		color(153, 51, 255),
+		color(51, 204, 204)
+	];
   cloud = new wordCloud(dict);
 }
 
@@ -255,6 +289,8 @@ function draw() {
   cloud.handleBoundary();
   cloud.handleCollisions();
   cloud.render();
+  var c = color(0, 0, 1);
+  console.log(c.b);
 }
 
 function clampAbs(val, max) {
