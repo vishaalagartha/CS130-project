@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module data_crawler</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>data_crawler</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/vishaalagartha/CS130-project/DataCrawler/data_crawler.py">/Users/vishaalagartha/CS130-project/DataCrawler/data_crawler.py</a></font></td></tr></table>
+    <p><tt>The&nbsp;<a href="#DataCrawler">DataCrawler</a>&nbsp;class&nbsp;can&nbsp;be&nbsp;used&nbsp;to&nbsp;asynchronously&nbsp;fetch&nbsp;comments&nbsp;from&nbsp;a<br>
+specific&nbsp;subreddit&nbsp;between&nbsp;two&nbsp;timestamps.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="asyncio.html">asyncio</a><br>
+<a href="json.html">json</a><br>
+</td><td width="25%" valign=top><a href="math.html">math</a><br>
+<a href="requests.html">requests</a><br>
+</td><td width="25%" valign=top><a href="string.html">string</a><br>
+<a href="time.html">time</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="data_crawler.html#DataCrawler">DataCrawler</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="DataCrawler">class <strong>DataCrawler</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#DataCrawler">DataCrawler</a>(params)<br>
+&nbsp;<br>
+Encapsulates&nbsp;an&nbsp;instance&nbsp;of&nbsp;the&nbsp;<a href="#DataCrawler">DataCrawler</a>&nbsp;class<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="DataCrawler-__init__"><strong>__init__</strong></a>(self, params)</dt><dd><tt>Construct&nbsp;a&nbsp;new&nbsp;instance&nbsp;of&nbsp;a&nbsp;<a href="#DataCrawler">DataCrawler</a><br>
+&nbsp;<br>
+:param&nbsp;params:&nbsp;Dictionary&nbsp;containing&nbsp;a&nbsp;'subreddit',&nbsp;'start',&nbsp;and&nbsp;'end'<br>
+field;&nbsp;'subreddit'&nbsp;is&nbsp;a&nbsp;string;&nbsp;'start'&nbsp;and&nbsp;'end'&nbsp;are&nbsp;integer<br>
+timestamps.<br>
+:return:&nbsp;returns&nbsp;None</tt></dd></dl>
+
+<dl><dt><a name="DataCrawler-async_fetch"><strong>async_fetch</strong></a>(self)</dt><dd><tt>Asynchronously&nbsp;fetch&nbsp;and&nbsp;gather&nbsp;all&nbsp;text&nbsp;and&nbsp;comments&nbsp;for&nbsp;a&nbsp;specific<br>
+thread<br>
+&nbsp;<br>
+:param:&nbsp;No&nbsp;parameters<br>
+:return&nbsp;freq,&nbsp;comments:&nbsp;A&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;filtered&nbsp;words&nbsp;and<br>
+frequencies&nbsp;and&nbsp;a&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;individual&nbsp;comments<br>
+and&nbsp;upvotes.</tt></dd></dl>
+
+<dl><dt><a name="DataCrawler-count_freq"><strong>count_freq</strong></a>(self, words)</dt><dd><tt>Counts&nbsp;the&nbsp;number&nbsp;of&nbsp;occurrences&nbsp;of&nbsp;each&nbsp;word<br>
+&nbsp;<br>
+:param&nbsp;words:&nbsp;A&nbsp;list&nbsp;of&nbsp;words<br>
+:return&nbsp;sorted_d:&nbsp;A&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;the&nbsp;word&nbsp;and&nbsp;number&nbsp;of<br>
+occurrences,&nbsp;sorted&nbsp;by&nbsp;frequency</tt></dd></dl>
+
+<dl><dt><a name="DataCrawler-fetch"><strong>fetch</strong></a>(self, date_range)</dt><dd><tt>Fetches&nbsp;comments&nbsp;between&nbsp;a&nbsp;range&nbsp;of&nbsp;dates.<br>
+&nbsp;<br>
+:param&nbsp;date_range:&nbsp;Dictionary&nbsp;containing&nbsp;'after'&nbsp;and&nbsp;'before'&nbsp;field&nbsp;both<br>
+of&nbsp;type&nbsp;integer<br>
+:return&nbsp;text,&nbsp;comments:&nbsp;Where&nbsp;text&nbsp;is&nbsp;a&nbsp;string&nbsp;containing&nbsp;all&nbsp;comments<br>
+and&nbsp;comments&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;2&nbsp;elements.&nbsp;The&nbsp;first<br>
+element&nbsp;is&nbsp;a&nbsp;string&nbsp;containing&nbsp;the&nbsp;comment&nbsp;and&nbsp;the&nbsp;second&nbsp;element&nbsp;is&nbsp;the<br>
+number&nbsp;of&nbsp;upvotes&nbsp;for&nbsp;the&nbsp;comment.</tt></dd></dl>
+
+<dl><dt><a name="DataCrawler-filter_words"><strong>filter_words</strong></a>(self, text)</dt><dd><tt>Converts&nbsp;text&nbsp;into&nbsp;individual&nbsp;words,&nbsp;formats&nbsp;the&nbsp;words,&nbsp;and&nbsp;removes&nbsp;all<br>
+stop&nbsp;words<br>
+&nbsp;<br>
+:param&nbsp;text:&nbsp;A&nbsp;long&nbsp;string&nbsp;containing&nbsp;all&nbsp;the&nbsp;text<br>
+:return&nbsp;words:&nbsp;A&nbsp;list&nbsp;of&nbsp;formatted&nbsp;and&nbsp;filtered&nbsp;words</tt></dd></dl>
+
+<dl><dt><a name="DataCrawler-get_date_ranges"><strong>get_date_ranges</strong></a>(self, num_comments)</dt><dd><tt>Based&nbsp;on&nbsp;number&nbsp;of&nbsp;comments,&nbsp;set&nbsp;the&nbsp;date&nbsp;ranges&nbsp;each&nbsp;thread&nbsp;will&nbsp;GET<br>
+for.<br>
+&nbsp;<br>
+:param&nbsp;num_comments:&nbsp;Total&nbsp;number&nbsp;of&nbsp;comments&nbsp;to&nbsp;fetch<br>
+:return&nbsp;date_ranges:&nbsp;A&nbsp;list&nbsp;of&nbsp;objects&nbsp;containing&nbsp;an&nbsp;'after'&nbsp;and&nbsp;'before'<br>
+field.&nbsp;Each&nbsp;thread&nbsp;obtains&nbsp;comments&nbsp;between&nbsp;these&nbsp;two&nbsp;dates.</tt></dd></dl>
+
+<dl><dt><a name="DataCrawler-get_num_comments"><strong>get_num_comments</strong></a>(self)</dt><dd><tt>Use&nbsp;aggs&nbsp;from&nbsp;PushshiftAPI()&nbsp;to&nbsp;make&nbsp;1&nbsp;query&nbsp;to&nbsp;obtain&nbsp;the&nbsp;number&nbsp;of<br>
+comments&nbsp;in&nbsp;date&nbsp;range<br>
+&nbsp;<br>
+:param:&nbsp;No&nbsp;parameters<br>
+:return&nbsp;num_comments:&nbsp;Total&nbsp;number&nbsp;of&nbsp;comments&nbsp;in&nbsp;date&nbsp;range</tt></dd></dl>
+
+<dl><dt><a name="DataCrawler-run"><strong>run</strong></a>(self)</dt><dd><tt>Main&nbsp;function&nbsp;to&nbsp;asynchronously&nbsp;fetch&nbsp;frequencies&nbsp;and&nbsp;comments<br>
+&nbsp;<br>
+:param:&nbsp;No&nbsp;parameters<br>
+:return&nbsp;freq,&nbsp;comments:&nbsp;A&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;filtered&nbsp;words&nbsp;and<br>
+frequencies&nbsp;and&nbsp;a&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;individual&nbsp;comments<br>
+and&nbsp;upvotes.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>stopwords</strong> = &lt;WordListCorpusReader in '.../corpora/stopwords' (not loaded yet)&gt;</td></tr></table>
+</body></html>
