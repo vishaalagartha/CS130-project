@@ -29,7 +29,7 @@ var font,
     fontSize = 80,
     minFontSize = 12;
 
-var spawnBoxSize = 30;
+var spawnBoxSize = 50;
 
 var spring = 0.5;
 var force = 80000;
@@ -39,6 +39,8 @@ var x,y, cloud;
 var numColors = 10;
 var colorMinOffset = 10;
 var colorMaxOffset = 65;
+
+var ih;
 
 class wordCloud {
   constructor(wordDict) {
@@ -82,7 +84,8 @@ class wordCloud {
       }
     }
     for (const [word, freq] of Object.entries(wordDict)) {
-      this.wordBoxes.push(new wordBox(word, freq, maxFreq, this.getProceduralColor(baseColor, colorMinOffset, colorMaxOffset)));
+      this.wordBoxes.push(new wordBox(word, freq, maxFreq, 
+      	this.getProceduralColor(baseColor, colorMinOffset, colorMaxOffset)));
     }
   }
 
@@ -206,7 +209,6 @@ class Rectangle {
     } else if (dy > -threshold && dy <= 0) {
       dy = -threshold;
     }
-    var distance = sqrt(dx * dx + dy * dy);
 
     // var constvx = force * spring * dx / distance / distance,
     // 	constvy = force * spring * dy / distance / distance;
@@ -259,6 +261,55 @@ class Rectangle {
     }
     return false;
   }
+
+  contains(x, y) {
+  	if (x > this.x && x < this.x + this.w &&
+  			y > this.y && y < this.y + this.h) {
+  		return true;
+  	}
+  	return false;
+  }
+}
+
+class InputHandler {
+	constructor(wordBoxes) {
+		this.wordBoxes = wordBoxes;
+		this.attachedBox = null;
+		this.xOffset = 0;
+		this.yOffset = 0;
+	}
+
+	mousePressed() {
+		for (var i = 0; i < this.wordBoxes.length; i++) {
+			if (this.wordBoxes[i].rect.contains(mouseX, mouseY)) {
+				this.attachedBox = this.wordBoxes[i];
+				this.xOffset = mouseX - this.wordBoxes[i].rect.x;
+				this.yOffset = mouseY - this.wordBoxes[i].rect.y;
+			}
+		}
+	}
+
+	mouseReleased() {
+		this.attachedBox = null;
+	}
+
+	mouseClicked() {
+		//TODO:: call sentiment chart code
+		//need to add some custom timing for this, cant use this function
+		console.log("clicked");
+	}
+
+	mouseDragged() {
+
+	}
+
+	handleAttachedBox() {
+		if (this.attachedBox == null) {
+			return;
+		}
+		this.attachedBox.rect.x = mouseX - this.xOffset;
+		this.attachedBox.rect.y = mouseY - this.yOffset;
+	}
 }
 
 function setup() {
@@ -274,6 +325,8 @@ function setup() {
 		color(51, 204, 204)
 	];
   cloud = new wordCloud(dict);
+  //make sure to initialize inputHandler after wordCloud, should refactor this
+  ih = new InputHandler(cloud.wordBoxes);
 }
 
 
@@ -288,9 +341,8 @@ function draw() {
 
   cloud.handleBoundary();
   cloud.handleCollisions();
+  ih.handleAttachedBox();
   cloud.render();
-  var c = color(0, 0, 1);
-  console.log(c.b);
 }
 
 function clampAbs(val, max) {
@@ -301,4 +353,20 @@ function clampAbs(val, max) {
 	} else {
 		return val;
 	}
+}
+
+function mousePressed() {
+	ih.mousePressed();
+}
+
+function mouseReleased() {
+	ih.mouseReleased();
+}
+
+function mouseClicked() {
+	ih.mouseClicked();
+}
+
+function mouseDragged() {
+	ih.mouseDragged();
 }
