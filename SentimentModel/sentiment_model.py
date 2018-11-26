@@ -14,27 +14,44 @@ class SentimentModel:
         #still under work
 
         #return phrases.
-        phrases = []
+        phrases = []    # list of dicts: 'phrase', 'vote'
+
+
         for comment in comments:
-            phrase = re.split('; |, |and |but |or |nor ', comment)
+            #list of lists 0 is comment 1 is vote
+            sentence = comment[0].split(".")
+            vote = comment[1]
+            for i in sentence:
+                phrase = re.split('; |, | and | but | or | nor ', i)
             # phrases.append([word for word in phrase])
 
-            for j in phrase:
-                phrases.append(j)
+                for j in phrase:
+                    phrases.append({'phrase': j, 'vote': vote})
         return phrases  
 
     def generateSentiments(self, word):
         # Run it through the SentimentIntensityAnalyzer
         related_phrases = []
-        for phrase in self.comments_:
-            if word.lower() in phrase.lower():
-                related_phrases.append(phrase)
+        for d in self.comments_:
+            if word.lower() in d['phrase'].lower():
+                related_phrases.append(d)
 
         # sentiment_values = []
+        avg = 0
         for i in related_phrases:
-            vs = self.model_.polarity_scores(i)
+            vs = self.model_.polarity_scores(i['phrase'])
             # sentiment_values.append(vs)
-            print("{:-<65} {}".format(i, str(vs)))
+            # print("{:-<65} {}".format(i['phrase'], str(vs['compound']*i['vote'])))
+            avg += vs['compound']*i['vote']
+
+        if related_phrases:
+            score = avg / len(related_phrases)
+            if score >= 0.05:
+                print('Positive')
+            elif score <= -0.05:
+                print('MEGATIVE')
+            else:
+                print('Neutral')
 
         # return sentiment_values
 
