@@ -3,3 +3,4 @@ __pycache__/
 # SentimentModel
 SentimentModel/sentiment_model_old.py
 SentimentModel/sentiment_model_useless.py
+SentimentModel/stanford_parser_env.py
