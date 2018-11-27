@@ -145,7 +145,7 @@ class DataCrawler:
         # set each thread to make 1 get
         num_requests = 1
         # set chunk_size
-        nthreads = math.ceil(num_comments/(500*num_requests))
+        nthreads = 1 if num_comments==0 else int(math.ceil(num_comments/(500*num_requests)))
         
         chunk_size = int((self.end_date-self.start_date)/nthreads)
         date_ranges = []
