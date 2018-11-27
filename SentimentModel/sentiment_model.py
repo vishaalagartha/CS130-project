@@ -6,16 +6,11 @@ class SentimentModel:
     def __init__(self, comments, params):
         self.comments_ = self.handleComments(comments)
         self.model_ = SentimentIntensityAnalyzer()
-        self.params_ = params
 
     def handleComments(self, comments):
         # Grab comments that have specific word
-        #parse through comments using Subject-Predicate-Object and split comment into phrases
-        #still under work
-
-        #return phrases.
+        # Parse through comments using Subject-Predicate-Object and split comment into phrases
         phrases = []    # list of dicts: 'phrase', 'vote'
-
 
         for comment in comments:
             #list of lists 0 is comment 1 is vote
@@ -25,6 +20,7 @@ class SentimentModel:
                 phrase = re.split('; |, | and | but | or | nor ', i)
             # phrases.append([word for word in phrase])
 
+                # If we have the timestamps for each comment/post, we can store it here
                 for j in phrase:
                     phrases.append({'phrase': j, 'vote': vote})
         return phrases  
@@ -44,6 +40,7 @@ class SentimentModel:
             # print("{:-<65} {}".format(i['phrase'], str(vs['compound']*i['vote'])))
             avg += vs['compound']*i['vote']
 
+        # Need to normalize score once we factor in upvotes
         if related_phrases:
             score = avg / len(related_phrases)
             if score >= 0.05:
@@ -57,4 +54,4 @@ class SentimentModel:
 
     def sendSentiments(self):
         print('sending sentiments')
-        #to be implement after talking with front end team members
+        # To be implemented after talking with front end team members

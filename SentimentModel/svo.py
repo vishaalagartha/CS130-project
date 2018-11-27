@@ -4,7 +4,6 @@ from nltk.tree import ParentedTree, Tree
 from nltk.parse import stanford
 import nltk.data
 import nltk.draw
-import os
 import re
 import sys
 import stanford_parser_env as spe
@@ -173,8 +172,8 @@ class SVO(object):
 if __name__=="__main__":
     svo = SVO()
     # sentence = "Andreas loves soccer. He is also very good at it. Barack Obama likes the legislation"
-    sentence = 'This is the problem with the max contracts.'
-    # sentence = 'I like eggs and bacon and turkey but not chicken'
+    #sentence = 'This is the problem with the max contracts.'
+    sentence = 'I like eggs and bacon and turkey but not chicken'
                 # 'It means that a guy like ' + \
                 # 'John Wall or Kyle Lowry are worth the same as Lebron or KD. ' + \
                 # "Which is kind of nuts. I feel like it'd help league parity if " + \
@@ -185,7 +184,7 @@ if __name__=="__main__":
                 # 'amount to have a good team.'
     # sentences =  svo.sentence_split(sentence)
 
-    sentences = re.split(" and | but ", sentence)
+    sentences = re.split(" and | but | , | ; ", sentence)
     val = []
     for sent in sentences:
         root_tree = svo.get_parse_tree(sent)
