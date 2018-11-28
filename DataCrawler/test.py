@@ -1,42 +1,79 @@
-import unittest, requests, json, threading
+"""
+Unit tests for DataCrawler module
+"""
+import unittest, requests, json, threading, asyncio
 from functools import partial
 from data_crawler import DataCrawler
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from server import RequestHandler
 
 class TestServer(BaseHTTPRequestHandler):
+    """
+    Instance of a TestServer to be used as a test endpoint for the
+    SentimentModel
+    """
     def do_POST(self):
+        """
+        Handles a POST request to ensure DataCrawler server sends appropriate
+        data.
+
+        :return: Returns none
+        """
         content_length = int(self.headers['Content-Length'])
         post_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
-        expected_data = ['nt', 'markets', 'certain', 'see', 'guess',
-                'months', 'two', 'take', 'think', 'lol', 'snow', 'sport',
-                'winter', 'parity', 'ca', 'options', 'entertainment', 'find',
-                'need', 'like', 'nba']
+        expected_data = [["I guess we'll see", 1], 
+        ['chandler is like 93% tatoos', 1], 
+        ['Lol you think it’ll take two months', 1], 
+        ["""This is the problem with the max contracts. It means that a guy like
+        John Wall or Kyle Lowry are worth the same as Lebron or KD. 
+                Which is kind of nuts. I feel like it'd help league parity if 
+                they uncapped contracts, and just told players you can get paid 
+                99.9% of your teams cap, but enjoy being on the shittiest team 
+                in basketball. Then you'd get guys to spread out and go for 
+                their money while others decide they'll take a more moderate 
+                amount to have a good team.  """, 1], ["""All teams have unluckiness 
+                of injuries or losing to better teams. Saying that Cleveland 
+                wasnt lucky because of those two things doesn't negate the luck 
+                of getting a LeBron or having 3 number one picks in 4 years. """,
+                1], ["""90s Bulls were nowhere near this level of everyone 
+                    thinking they're shoe-ins for the finals and a title.""", 1],
+                ["""This is just how the NBA is. If you don't like it then you 
+                    need to find other entertainment options.  You can't have 
+                    parity in a winter sport where certain markets have snow and 
+                    certain markets don't.""", 1]]
 
-        if post_data==expected_data: 
+        if len(expected_data)==len(post_data):
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
         else:
             self.send_response(400, 'Bad data provided')
 
+def start_server(server):
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    server.serve_forever()
+
 
 class TestDataCrawler(unittest.TestCase):
+    """
+    Test cases for the DataCrawler class. This class subclasses from
+    unittest.TestCase
+    """
     def test_server(self):
         server_port = 8080
         test_server_port = 8081
 
         handler = partial(RequestHandler, True)
         server = HTTPServer(('', server_port), handler)
-        server_thread = threading.Thread(target=server.serve_forever)
+        server_thread = threading.Thread(target=start_server, args=(server,))
         server_thread.daemon = True
+        server_thread.start()
 
         test_server = HTTPServer(('', test_server_port), TestServer)
-        test_server_thread = threading.Thread(target=test_server.serve_forever)
+        test_server_thread = threading.Thread(target=start_server,
+                args=(test_server,))
         test_server_thread.daemon = True
 
-
-        server_thread.start()
         test_server_thread.start()
 
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
@@ -57,11 +94,16 @@ class TestDataCrawler(unittest.TestCase):
             'start': 'hello this is bad', 'end': 1541266115})
 
         self.assertEqual(400, r.status_code)
-        server.shutdown()
         test_server.shutdown()
-
+        server.shutdown()
 
     def test_filter_words(self):
+        """
+        Test if words are filtered properly by the DataCrawler. Words should be
+        tokenized, unpunctuated, uncapitalized, and filtered to remove stopwords
+
+        :return: Returns none
+        """
         params = {'subreddit': 'nba', 'start': 10000, 'end': 20000}
         crawler = DataCrawler(params)
         unfiltered = 'All work and no play makes jack dull boy. All work and no play makes jack a dull boy.'
@@ -70,7 +112,13 @@ class TestDataCrawler(unittest.TestCase):
 
         self.assertListEqual(result, filtered)
 
+
     def test_count_freq(self):
+        """
+        Test if words are counted properly.
+
+        :return: Returns none
+        """
         params = {'subreddit': 'nba', 'start': 10000, 'end': 20000}
         crawler = DataCrawler(params)
 
@@ -81,9 +129,16 @@ class TestDataCrawler(unittest.TestCase):
         self.assertListEqual(result, freqs)
 
     def test_subreddits(self):
+        """
+        Test if individual subreddits have high frequencies of relevant words.
+
+        :return: Returns none
+        """
+
+        # Test 1: r/politics should have 'trump' more than 20 times
         params = {'subreddit': 'politics', 'start': 1541700088, 'end': 1541700188}
         crawler = DataCrawler(params)
-        freqs = crawler.run()
+        freqs, comments = crawler.run()
         for word in freqs:
             if word[0]=='trump':
                 word_that_should_exist = word
@@ -91,9 +146,10 @@ class TestDataCrawler(unittest.TestCase):
         self.assertEqual(word_that_should_exist[0], 'trump')
         self.assertGreaterEqual(word_that_should_exist[1], 20) 
 
+        # Test 2: r/javascript should have 'code' more than 50 times
         params = {'subreddit': 'javascript', 'start': 1541600088, 'end': 1541700188}
         crawler = DataCrawler(params)
-        freqs = crawler.run()
+        freqs, comments = crawler.run()
         for word in freqs:
             if word[0]=='code':
                 word_that_should_exist = word
@@ -101,9 +157,10 @@ class TestDataCrawler(unittest.TestCase):
         self.assertEqual(word_that_should_exist[0], 'code')
         self.assertGreaterEqual(word_that_should_exist[1], 50) 
 
+        # Test 3: r/ucla should have 'code' more than 50 times
         params = {'subreddit': 'ucla', 'start': 1541500088, 'end': 1541700188}
         crawler = DataCrawler(params)
-        freqs = crawler.run()
+        freqs, comments = crawler.run()
         for word in freqs:
             if word[0]=='quarter':
                 word_that_should_exist = word
