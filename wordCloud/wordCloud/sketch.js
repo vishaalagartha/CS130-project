@@ -317,7 +317,7 @@ class InputHandler {
 		} else {
 			val = this.attachedBox.text;
 		}
-		document.getElementById("canvasContainer").value = val;
+		document.getElementById("canvasForm").value = val;
 	}
 }
 
@@ -354,6 +354,12 @@ function draw() {
   cloud.render();
 }
 
+function windowResized() {
+	var width = document.getElementById('canvasContainer').offsetWidth;
+	var height = document.getElementById('canvasContainer').offsetHeight;
+	resizeCanvas(width, height);
+}
+
 function clampAbs(val, max) {
 	var sign = (val < 0) ? -1 : 1;
 	var temp = (val < 0) ? -val : val;
@@ -371,3 +377,4 @@ function mousePressed() {
 function mouseReleased() {
 	ih.mouseReleased();
 }
+
