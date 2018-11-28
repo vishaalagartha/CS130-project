@@ -10,10 +10,11 @@ class SentimentModel:
     """
     Encapsulates an instance of the Sentiment class and its methods
     """
-    def __init__(self, comments)
+    def __init__(self, comments):
         """
         Construct a new instance of a SentimentModel, initialize the SentimentIntensityModel
         Calls handleComments() to split comments into phrases
+
         :param comments: List of dictionaries containing 'comment','votes' and 'timestamps'
         fields; 'comment' is a string and 'votes' and 'timestamps' are integers
 
@@ -26,6 +27,7 @@ class SentimentModel:
         """
         Split comments into simple phrases using a Subject-Verb-Object model
         generated from Stanford Parser
+
         :param comments: List of dictionaries containing 'comment','votes' and 'timestamps'
         fields; 'comment' is a string and 'votes' and 'timestamps' are integers
         
@@ -53,6 +55,7 @@ class SentimentModel:
         """
         Generate sentiment given a specific word. Searches for the word in list of phrases
         and generates a sentiment for the specific word.
+
         :param word: String selected by user on front end, sent to SentimentModel to
         generate sentiment of subreddit with the respect to selected word
         
