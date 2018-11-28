@@ -225,14 +225,6 @@ class Rectangle {
     other.vy -= clampAbs(constvy / areaScale2, max);
   }
 
-  getDX(rect1, rect2) {
-  	return ;
-  }
-
-  getDY(rect1, rect2) {
-  	return ;
-  }
-
   addInwardsForce() {
   	var forceStrength = 0.0001;
   	var centerX = width / 2;
@@ -277,6 +269,10 @@ class InputHandler {
 		this.attachedBox = null;
 		this.xOffset = 0;
 		this.yOffset = 0;
+		this.clickX = 0;
+		this.clickY = 0;
+		this.isPressed = false;
+		this.clickThreshold = 2;
 	}
 
 	mousePressed() {
@@ -287,20 +283,23 @@ class InputHandler {
 				this.yOffset = mouseY - this.wordBoxes[i].rect.y;
 			}
 		}
+		this.isPressed = true;
+		this.clickX = mouseX;
+		this.clickY = mouseY;
 	}
 
 	mouseReleased() {
 		this.attachedBox = null;
+		this.isPressed = false;
+		if (this.clickX - mouseX < this.clickThreshold && this.clickX - mouseX > -this.clickThreshold &&
+				this.clickY - mouseY < this.clickThreshold && this.clickY - mouseY > -this.clickThreshold) {
+			this.mouseClicked();
+		}
 	}
 
 	mouseClicked() {
-		//TODO:: call sentiment chart code
-		//need to add some custom timing for this, cant use this function
-		console.log("clicked");
-	}
-
-	mouseDragged() {
-
+		console.log("click");
+		this.updateSentimentChart();
 	}
 
 	handleAttachedBox() {
@@ -309,6 +308,16 @@ class InputHandler {
 		}
 		this.attachedBox.rect.x = mouseX - this.xOffset;
 		this.attachedBox.rect.y = mouseY - this.yOffset;
+	}
+
+	updateSentimentChart() {
+		var val;
+		if (this.attachedBox == null) {
+			val = "";
+		} else {
+			val = this.attachedBox.text;
+		}
+		document.getElementById("canvasContainer").value = val;
 	}
 }
 
@@ -361,12 +370,4 @@ function mousePressed() {
 
 function mouseReleased() {
 	ih.mouseReleased();
-}
-
-function mouseClicked() {
-	ih.mouseClicked();
-}
-
-function mouseDragged() {
-	ih.mouseDragged();
 }
