@@ -18,14 +18,6 @@ class App extends Component {
     };
   }
 
-  // componentDidMount() {
-  //   axios.get('https://api.github.com/users/kelvinlzhang')
-  //   .then(function(response){
-  //     console.log(response.data); // ex.: { user: 'Your User'}
-  //     console.log(response.status); // ex.: 200
-  //   });  
-  // }
-
   onChangeSubreddit = (e) => {
     this.setState({ subreddit: e.target.value });
   }
@@ -41,33 +33,21 @@ class App extends Component {
   }
 
   onSubmit = (e) => {
+    e.preventDefault();
+
     let data = JSON.stringify({
       subreddit: this.state.subreddit,
       start: this.state.startDate.unix(),
       end: this.state.endDate.unix()
-  })
-    // axios.get('https://api.github.com/users/kelvinlzhang')
-    // .then(function(response){
-    //   console.log(response.data); // ex.: { user: 'Your User'}
-    //   console.log(response.status); // ex.: 200
-    // })  
+    })
+    
     axios.post('http://127.0.0.1:8080', data, {
       headers: {
         'Content-Type': 'application/json;charset=UTF-8',
         "Access-Control-Allow-Origin": "*",
-      }
+      },
+      timeout: 60000
     })
-    // return axios('http://127.0.0.1:8080', {
-    //   method: 'POST',
-    //   headers: {
-    //     'content-type': 'application/json',
-    //   },
-    //   data: {
-    //     subreddit: this.state.subreddit,
-    //     start: this.state.startDate.unix(),
-    //     end: this.state.endDate.unix()
-    //   }
-    // })
     .then((res) => res.json())
     .then((data) => {
       this.setState({
