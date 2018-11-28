@@ -65,6 +65,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         """
 
         self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Content-type', 'application/json')
         self.end_headers()
         print(scores)
@@ -100,7 +101,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', 'X-Requested-With')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
-        
+
 if __name__ == '__main__':
     port = 8080
     print('Listening on localhost:%s' % port)
