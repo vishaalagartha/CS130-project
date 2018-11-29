@@ -3,11 +3,15 @@ The DataCrawler class can be used to asynchronously fetch comments from a
 specific subreddit between two timestamps.
 """
 
-import asyncio, string, json, requests, time, math
+import sys, asyncio, string, json, requests, time, math
 from functools import partial
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import TweetTokenizer
 from operator import itemgetter
+
+sys.path.append('..')
+
+from SentimentModel.sentiment_model import SentimentModel
 
 class DataCrawler:
     """
@@ -55,12 +59,13 @@ class DataCrawler:
             if resp.status_code==200:
                 data = resp.json()['data']
                 for comment in data:
-                    if comment['created_utc']>last_date:
+                    timestamp = int(comment['created_utc'])
+                    if timestamp>last_date:
                         # update last date for next GET
                         last_date = comment['created_utc']
                     text+=(comment['body'] + ' ')
                     c = comment['body'].replace('\n', '').replace('\r', '')
-                    comments.append((c, comment['score']))
+                    comments.append((c, comment['score'], timestamp))
 
                 if len(data)==0:
                     break
@@ -76,7 +81,7 @@ class DataCrawler:
         :return words: A list of formatted and filtered words
         """
         # split into words
-        tokens = word_tokenize(text)
+        tokens = TweetTokenizer().tokenize(text)
         # convert to lower case
         tokens = [w.lower() for w in tokens]
         # remove punctuation from each word
@@ -90,7 +95,7 @@ class DataCrawler:
 
         return words
 
-    def count_freq(self, words):
+    def count_freqs(self, words):
         """
         Counts the number of occurrences of each word
 
@@ -109,6 +114,25 @@ class DataCrawler:
         sorted_d = sorted(d.items(), key=itemgetter(1))[::-1]
 
         return sorted_d
+
+    def get_sentiments(self, freqs, comments):
+        """
+        Get sentiments for individual words using SentimentModel
+
+        :param freqs: A list of tuples containing a word of type string and a
+        frequency of type integer
+        :param comments: A list of tuples containing a comment of type string, a
+        score of type integer, and a timestamp of type integer
+        :return sentiments: A list of tuples containing an individual word of
+        type string, the score associated with the word of type float and a
+        timestamp with type int
+        """
+        m = SentimentModel(comments)
+        sentiments = []
+        for word in freqs:
+            score, timestamp = m.generateSentiments(word[0])
+            sentiments.append((word[0], score, timestamp))
+        return sentiments
 
     def get_num_comments(self):
         """
@@ -167,9 +191,9 @@ class DataCrawler:
         thread
         
         :param: No parameters
-        :return freq, comments: A list of tuples containing filtered words and
-        frequencies and a list of tuples containing individual comments
-        and upvotes.
+        :return freqs, scores: freqs is a list of tuples containing filtered words and
+        frequencies. scores is a list of tuples containing words, scores, and
+        timestamps.
         """
         num_comments = self.get_num_comments()
         ranges = self.get_date_ranges(num_comments)
@@ -182,20 +206,21 @@ class DataCrawler:
             all_text+=(r[0] + ' ')
             comments+=r[1]
         filtered_words = self.filter_words(all_text)
-        freq = self.count_freq(filtered_words)
+        freqs = self.count_freqs(filtered_words)
+        scores = self.get_sentiments(freqs, comments)
 
-        return freq, comments
+        return freqs, scores
 
     def run(self):
         """
         Main function to asynchronously fetch frequencies and comments
 
         :param: No parameters
-        :return freq, comments: A list of tuples containing filtered words and
-        frequencies and a list of tuples containing individual comments
-        and upvotes.
+        :return freqs, scores: freqs is a list of tuples containing filtered words and
+        frequencies. scores is a list of tuples containing words, scores, and
+        timestamps.
         """
         self.loop = asyncio.get_event_loop()
-        freq, comments = self.loop.run_until_complete(self.async_fetch())
+        freqs, scores = self.loop.run_until_complete(self.async_fetch())
 
-        return freq, comments
+        return freqs, scores

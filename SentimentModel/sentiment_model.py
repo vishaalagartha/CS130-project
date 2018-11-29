@@ -87,3 +87,4 @@ class SentimentModel:
 #                 print('Neutral')
 
         # return sentiment_values
+        return 0, 0

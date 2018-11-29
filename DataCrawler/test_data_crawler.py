@@ -2,52 +2,9 @@
 Unit tests for DataCrawler module
 """
 import unittest, requests, json, threading, asyncio
-from functools import partial
 from data_crawler import DataCrawler
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from server import RequestHandler
-
-class TestServer(BaseHTTPRequestHandler):
-    """
-    Instance of a TestServer to be used as a test endpoint for the
-    SentimentModel
-    """
-    def do_POST(self):
-        """
-        Handles a POST request to ensure DataCrawler server sends appropriate
-        data.
-
-        :return: Returns none
-        """
-        content_length = int(self.headers['Content-Length'])
-        post_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
-        expected_data = [["I guess we'll see", 1], 
-        ['chandler is like 93% tatoos', 1], 
-        ['Lol you think it’ll take two months', 1], 
-        ["""This is the problem with the max contracts. It means that a guy like
-        John Wall or Kyle Lowry are worth the same as Lebron or KD. 
-                Which is kind of nuts. I feel like it'd help league parity if 
-                they uncapped contracts, and just told players you can get paid 
-                99.9% of your teams cap, but enjoy being on the shittiest team 
-                in basketball. Then you'd get guys to spread out and go for 
-                their money while others decide they'll take a more moderate 
-                amount to have a good team.  """, 1], ["""All teams have unluckiness 
-                of injuries or losing to better teams. Saying that Cleveland 
-                wasnt lucky because of those two things doesn't negate the luck 
-                of getting a LeBron or having 3 number one picks in 4 years. """,
-                1], ["""90s Bulls were nowhere near this level of everyone 
-                    thinking they're shoe-ins for the finals and a title.""", 1],
-                ["""This is just how the NBA is. If you don't like it then you 
-                    need to find other entertainment options.  You can't have 
-                    parity in a winter sport where certain markets have snow and 
-                    certain markets don't.""", 1]]
-
-        if len(expected_data)==len(post_data):
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-        else:
-            self.send_response(400, 'Bad data provided')
 
 def start_server(server):
     asyncio.set_event_loop(asyncio.new_event_loop())
@@ -61,24 +18,22 @@ class TestDataCrawler(unittest.TestCase):
     """
     def test_server(self):
         server_port = 8080
-        test_server_port = 8081
 
-        handler = partial(RequestHandler, True)
-        server = HTTPServer(('', server_port), handler)
+        server = HTTPServer(('', server_port), RequestHandler)
         server_thread = threading.Thread(target=start_server, args=(server,))
         server_thread.daemon = True
         server_thread.start()
 
-        test_server = HTTPServer(('', test_server_port), TestServer)
-        test_server_thread = threading.Thread(target=start_server,
-                args=(test_server,))
-        test_server_thread.daemon = True
-
-        test_server_thread.start()
-
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
             'start': 1541266100, 'end': 1541266115})
+
+        # Ensure response has 2 fields: frequencies, scores
+        has_freqs = 'frequencies' in r.json()
+        has_scores = 'scores' in r.json()
+
         self.assertEqual(200, r.status_code)
+        self.assertTrue(has_freqs)
+        self.assertTrue(has_scores)
 
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
             'start': 1541246800})
@@ -94,7 +49,6 @@ class TestDataCrawler(unittest.TestCase):
             'start': 'hello this is bad', 'end': 1541266115})
 
         self.assertEqual(400, r.status_code)
-        test_server.shutdown()
         server.shutdown()
 
     def test_filter_words(self):
@@ -113,7 +67,7 @@ class TestDataCrawler(unittest.TestCase):
         self.assertListEqual(result, filtered)
 
 
-    def test_count_freq(self):
+    def test_count_freqs(self):
         """
         Test if words are counted properly.
 
@@ -124,7 +78,7 @@ class TestDataCrawler(unittest.TestCase):
 
         words = ['hello']*5 + ['world']*20 + ['my'] + ['name']*3 + ['vishaal']*100
         freqs = [('vishaal', 100), ('world', 20), ('hello', 5), ('name', 3), ('my', 1)]
-        result = crawler.count_freq(words)
+        result = crawler.count_freqs(words)
 
         self.assertListEqual(result, freqs)
 

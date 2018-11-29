@@ -21,7 +21,8 @@ and&nbsp;SentimentAnalyzer&nbsp;modules.</tt></p>
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="http.html">http</a><br>
 </td><td width="25%" valign=top><a href="json.html">json</a><br>
-</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ee77aa">
 <td colspan=3 valign=bottom>&nbsp;<br>
@@ -43,7 +44,7 @@ and&nbsp;SentimentAnalyzer&nbsp;modules.</tt></p>
 <font color="#000000" face="helvetica, arial"><a name="RequestHandler">class <strong>RequestHandler</strong></a>(<a href="http.server.html#BaseHTTPRequestHandler">http.server.BaseHTTPRequestHandler</a>)</font></td></tr>
     
 <tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
-<td colspan=2><tt><a href="#RequestHandler">RequestHandler</a>(test,&nbsp;*args,&nbsp;**kwargs)<br>
+<td colspan=2><tt><a href="#RequestHandler">RequestHandler</a>(*args,&nbsp;**kwargs)<br>
 &nbsp;<br>
 Encapsulates&nbsp;an&nbsp;instance&nbsp;of&nbsp;the&nbsp;<a href="#RequestHandler">RequestHandler</a>&nbsp;class.&nbsp;This&nbsp;class&nbsp;subclasses<br>
 http.server's&nbsp;<a href="http.server.html#BaseHTTPRequestHandler">BaseHTTPRequestHandler</a>.<br>&nbsp;</tt></td></tr>
@@ -57,12 +58,8 @@ http.server's&nbsp;<a href="http.server.html#BaseHTTPRequestHandler">BaseHTTPReq
 </dl>
 <hr>
 Methods defined here:<br>
-<dl><dt><a name="RequestHandler-__init__"><strong>__init__</strong></a>(self, test, *args, **kwargs)</dt><dd><tt>Construct&nbsp;a&nbsp;new&nbsp;instance&nbsp;of&nbsp;<a href="#RequestHandler">RequestHandler</a><br>
+<dl><dt><a name="RequestHandler-__init__"><strong>__init__</strong></a>(self, *args, **kwargs)</dt><dd><tt>Construct&nbsp;a&nbsp;new&nbsp;instance&nbsp;of&nbsp;<a href="#RequestHandler">RequestHandler</a><br>
 &nbsp;<br>
-:param&nbsp;test:&nbsp;Boolean&nbsp;of&nbsp;whether&nbsp;or&nbsp;not&nbsp;we&nbsp;are&nbsp;testing&nbsp;(to&nbsp;set&nbsp;the&nbsp;client<br>
-endpoint&nbsp;and&nbsp;port)<br>
-:param:&nbsp;Client&nbsp;endpoint<br>
-:param:&nbsp;Client&nbsp;port<br>
 :return:&nbsp;Returns&nbsp;none</tt></dd></dl>
 
 <dl><dt><a name="RequestHandler-crawl"><strong>crawl</strong></a>(self, post_data)</dt><dd><tt>Create&nbsp;an&nbsp;instance&nbsp;of&nbsp;DataCrawler&nbsp;and&nbsp;run&nbsp;the&nbsp;crawler<br>
@@ -83,13 +80,7 @@ and&nbsp;upvotes.</tt></dd></dl>
 &nbsp;<br>
 :return:&nbsp;Returns&nbsp;none</tt></dd></dl>
 
-<dl><dt><a name="RequestHandler-send_comments"><strong>send_comments</strong></a>(self, comments)</dt><dd><tt>Send&nbsp;comments&nbsp;to&nbsp;SentimentModel&nbsp;module<br>
-&nbsp;<br>
-:param&nbsp;comments:&nbsp;A&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;individual&nbsp;comments<br>
-and&nbsp;upvotes.<br>
-:return:&nbsp;Returns&nbsp;none</tt></dd></dl>
-
-<dl><dt><a name="RequestHandler-send_freqs"><strong>send_freqs</strong></a>(self, freqs)</dt><dd><tt>Send&nbsp;frequencies&nbsp;response&nbsp;to&nbsp;WordCloud&nbsp;module<br>
+<dl><dt><a name="RequestHandler-send_words"><strong>send_words</strong></a>(self, freqs, scores)</dt><dd><tt>Send&nbsp;frequencies&nbsp;response&nbsp;to&nbsp;WordCloud&nbsp;module<br>
 &nbsp;<br>
 :param&nbsp;freq:&nbsp;A&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;filtered&nbsp;words&nbsp;and<br>
 frequencies.<br>
