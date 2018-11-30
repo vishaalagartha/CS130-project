@@ -4,6 +4,8 @@ import './App.css';
 import Chart from './components/Chart';
 import data from "./components/data.json";
 
+//REFERENCE FOR JSON PURPOSES:
+// {'score': vs, 'vote': vote, 'timestamp': timestamp, 'word': word}
 class App extends Component {
   constructor(){
     super();
