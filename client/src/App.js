@@ -80,13 +80,13 @@ class App extends Component {
       },
       timeout: 60000
     })
-    .then((res) => res.json())
-    .then((data) => {
-      this.setState({
-        words: data
-      });
-      console.log(data)
-    });
+    .then((res) => console.log(res));
+    // .then((data) => {
+    //   this.setState({
+    //     words: data
+    //   });
+    //   console.log(data)
+    // });
   }
 
   render() {
