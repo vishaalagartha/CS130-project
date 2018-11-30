@@ -73,7 +73,7 @@ class SentimentModel:
         avg = 0
         for i in related_phrases:
             vs = self.model_.polarity_scores(i['phrase'])
-            sentiment_values.append({'score': vs, 'vote': vote, 'timestamp': timestamp})
+            sentiment_values.append({'score': vs, 'vote': vote, 'timestamp': timestamp, 'word': word})
             
             # sentiment_values.append(vs)
             # print("{:-<65} {}".format(i['phrase'], str(vs['compound']*i['vote'])))
