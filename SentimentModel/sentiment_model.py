@@ -42,13 +42,14 @@ class SentimentModel:
             #list of lists 0 is comment 1 is vote
             sentence = comment[0].split(".")
             vote = comment[1]
+            timestamp = comment[2]
             for i in sentence:
                 phrase = re.split('; |, | and | but | or | nor ', i)
             # phrases.append([word for word in phrase])
 
                 # If we have the timestamps for each comment/post, we can store it here
                 for j in phrase:
-                    phrases.append({'phrase': j, 'vote': vote})
+                    phrases.append({'phrase': j, 'vote': vote, 'timestamp': timestamp})
         return phrases  
 
     def generateSentiments(self, word):
@@ -72,11 +73,12 @@ class SentimentModel:
         avg = 0
         for i in related_phrases:
             vs = self.model_.polarity_scores(i['phrase'])
+            sentiment_values.append({'score': vs, 'vote': vote, 'timestamp': timestamp, 'word': word})
+            
             # sentiment_values.append(vs)
             # print("{:-<65} {}".format(i['phrase'], str(vs['compound']*i['vote'])))
             #avg += vs['compound']*i['vote']
 
-        # Need to normalize score once we factor in upvotes
 #         if related_phrases:
 #             score = avg / len(related_phrases)
 #             if score >= 0.05:
@@ -86,5 +88,4 @@ class SentimentModel:
 #             else:
 #                 print('Neutral')
 
-        # return sentiment_values
-        return 0, 0
+        return sentiment_values
