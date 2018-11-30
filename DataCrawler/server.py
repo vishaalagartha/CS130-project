@@ -45,20 +45,22 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         :param post_data: Object containing parameters for creating a
         DataCrawler instance
-        :return freq, comments: A list of tuples containing filtered words and
-        frequencies and a list of tuples containing individual comments
-        and upvotes.
+        :return freqs, scores: A list of tuples containing filtered words and
+        frequencies and a list of tuples containing individual words, scores,
+        and timestamps.
         """
         crawler = DataCrawler(post_data)
-        freqs, comments = crawler.run()
-        return freqs, comments
+        freqs, scores = crawler.run()
+        return freqs, scores
 
     def send_words(self, freqs, scores):
         """
         Send frequencies response to WordCloud module
 
-        :param freq: A list of tuples containing filtered words and
+        :param freqs: A list of tuples containing filtered words and
         frequencies.
+        :param scores: A list of tuples containing words, scores, and
+        timestamps.
         :return: Returns none
         """
 
