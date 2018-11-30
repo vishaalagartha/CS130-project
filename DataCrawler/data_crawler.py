@@ -130,8 +130,14 @@ class DataCrawler:
         m = SentimentModel(comments)
         sentiments = []
         for word in freqs:
-            score, timestamp = m.generateSentiments(word[0])
-            sentiments.append((word[0], score, timestamp))
+            s = m.generateSentiments(word[0])
+            if len(s)>0:
+                d = {}
+                d['word'] = s[0]['word']
+                d['timestamps'] = [t['timestamp'] for t in s]
+                d['score'] = [t['score']['compound'] for t in s]
+                d['frequency'] = len(s)
+                sentiments.append(d)
         return sentiments
 
     def get_num_comments(self):
@@ -209,7 +215,7 @@ class DataCrawler:
         freqs = self.count_freqs(filtered_words)
         scores = self.get_sentiments(freqs, comments)
 
-        return freqs, scores
+        return scores
 
     def run(self):
         """
@@ -221,6 +227,6 @@ class DataCrawler:
         timestamps.
         """
         self.loop = asyncio.get_event_loop()
-        freqs, scores = self.loop.run_until_complete(self.async_fetch())
+        scores = self.loop.run_until_complete(self.async_fetch())
 
-        return freqs, scores
+        return scores

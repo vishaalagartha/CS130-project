@@ -50,10 +50,10 @@ class RequestHandler(BaseHTTPRequestHandler):
         and timestamps.
         """
         crawler = DataCrawler(post_data)
-        freqs, scores = crawler.run()
-        return freqs, scores
+        scores = crawler.run()
+        return scores
 
-    def send_words(self, freqs, scores):
+    def send_words(self, scores):
         """
         Send frequencies response to WordCloud module
 
@@ -67,8 +67,8 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
-        data = {'frequencies': freqs, 'scores': scores}
-        json_data = json.dumps(data).encode('utf-8')
+        print(scores)
+        json_data = json.dumps(scores).encode('utf-8')
         self.wfile.write(json_data)
 
     def do_POST(self):
@@ -82,8 +82,8 @@ class RequestHandler(BaseHTTPRequestHandler):
         post_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
 
         if self.validated(post_data):
-            freqs, scores = self.crawl(post_data)
-            self.send_words(freqs, scores)
+            scores = self.crawl(post_data)
+            self.send_words(scores)
         else:
             self.send_error(400, 'Invalid parameters supplied')
 

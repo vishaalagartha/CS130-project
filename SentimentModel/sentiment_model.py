@@ -71,6 +71,8 @@ class SentimentModel:
 
         sentiment_values = []
         avg = 0
+        vote = 0
+        timestamp = 0
         for i in related_phrases:
             vs = self.model_.polarity_scores(i['phrase'])
             sentiment_values.append({'score': vs, 'vote': vote, 'timestamp': timestamp, 'word': word})
