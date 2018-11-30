@@ -123,7 +123,12 @@ class DataCrawler:
         frequency of type integer
         :param comments: A list of tuples containing a comment of type string, a
         score of type integer, and a timestamp of type integer
-        :return sentiments: A list of tuples containing an individual word of
+        :return sentiments: A dictionary containing the fields 'word',
+        'timestamps', 'score', and 'frequency'. 'word' is string, 'frequency' is
+        an integer, 'timestamps' is a list of integers of size 'frequency', and
+        'score' is a list of floats of size 'frequency'.
+        
+        an individual word of
         type string, the score associated with the word of type float and a
         timestamp with type int
         """
@@ -197,9 +202,10 @@ class DataCrawler:
         thread
         
         :param: No parameters
-        :return freqs, scores: freqs is a list of tuples containing filtered words and
-        frequencies. scores is a list of tuples containing words, scores, and
-        timestamps.
+        :return sentiments: A dictionary containing the fields 'word',
+        'timestamps', 'score', and 'frequency'. 'word' is string, 'frequency' is
+        an integer, 'timestamps' is a list of integers of size 'frequency', and
+        'score' is a list of floats of size 'frequency'.
         """
         num_comments = self.get_num_comments()
         ranges = self.get_date_ranges(num_comments)
@@ -213,20 +219,21 @@ class DataCrawler:
             comments+=r[1]
         filtered_words = self.filter_words(all_text)
         freqs = self.count_freqs(filtered_words)
-        scores = self.get_sentiments(freqs, comments)
+        sentiments = self.get_sentiments(freqs, comments)
 
-        return scores
+        return sentiments
 
     def run(self):
         """
         Main function to asynchronously fetch frequencies and comments
 
         :param: No parameters
-        :return freqs, scores: freqs is a list of tuples containing filtered words and
-        frequencies. scores is a list of tuples containing words, scores, and
-        timestamps.
+        :return sentiments: A dictionary containing the fields 'word',
+        'timestamps', 'score', and 'frequency'. 'word' is string, 'frequency' is
+        an integer, 'timestamps' is a list of integers of size 'frequency', and
+        'score' is a list of floats of size 'frequency'.
         """
         self.loop = asyncio.get_event_loop()
-        scores = self.loop.run_until_complete(self.async_fetch())
+        sentiments = self.loop.run_until_complete(self.async_fetch())
 
-        return scores
+        return sentiments

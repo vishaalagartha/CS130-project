@@ -27,13 +27,13 @@ class TestDataCrawler(unittest.TestCase):
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
             'start': 1541266100, 'end': 1541266115})
 
-        # Ensure response has 2 fields: frequencies, scores
-        has_freqs = 'frequencies' in r.json()
-        has_scores = 'scores' in r.json()
+        for w in r.json():
+            self.assertTrue('word' in w and isinstance(w['word'], str))
+            self.assertTrue('timestamps' in w and isinstance(w['timestamps'], list))
+            self.assertTrue('score' in w and isinstance(w['score'], list))
+            self.assertTrue('frequency' in w and isinstance(w['frequency'], int))
 
         self.assertEqual(200, r.status_code)
-        self.assertTrue(has_freqs)
-        self.assertTrue(has_scores)
 
         r = requests.post('http://127.0.0.1:8080', json={'subreddit': 'nba',
             'start': 1541246800})
@@ -92,35 +92,38 @@ class TestDataCrawler(unittest.TestCase):
         # Test 1: r/politics should have 'trump' more than 20 times
         params = {'subreddit': 'politics', 'start': 1541700088, 'end': 1541700188}
         crawler = DataCrawler(params)
-        freqs, comments = crawler.run()
-        for word in freqs:
-            if word[0]=='trump':
-                word_that_should_exist = word
-
-        self.assertEqual(word_that_should_exist[0], 'trump')
-        self.assertGreaterEqual(word_that_should_exist[1], 20) 
+        sentiments = crawler.run()
+        has_trump = False
+        for i in sentiments:
+            if i['word']=='trump' and i['frequency']>20:
+                avg_score = sum(i['score'])/i['frequency']
+                has_trump = True
+        self.assertLess(avg_score, 0)
+        self.assertTrue(has_trump)
 
         # Test 2: r/javascript should have 'code' more than 50 times
         params = {'subreddit': 'javascript', 'start': 1541600088, 'end': 1541700188}
         crawler = DataCrawler(params)
-        freqs, comments = crawler.run()
-        for word in freqs:
-            if word[0]=='code':
-                word_that_should_exist = word
+        sentiments = crawler.run()
+        has_code = False
+        for i in sentiments:
+            if i['word']=='code' and i['frequency']>50:
+                avg_score = sum(i['score'])/i['frequency']
+                has_code = True
+        self.assertGreater(avg_score, 0.1)
+        self.assertTrue(has_code)
 
-        self.assertEqual(word_that_should_exist[0], 'code')
-        self.assertGreaterEqual(word_that_should_exist[1], 50) 
-
-        # Test 3: r/ucla should have 'code' more than 50 times
+        # Test 3: r/ucla should have 'quarter' more than 50 times
         params = {'subreddit': 'ucla', 'start': 1541500088, 'end': 1541700188}
         crawler = DataCrawler(params)
-        freqs, comments = crawler.run()
-        for word in freqs:
-            if word[0]=='quarter':
-                word_that_should_exist = word
+        sentiments = crawler.run()
+        for i in sentiments:
+            if i['word']=='quarter' and i['frequency']>20:
+                avg_score = sum(i['score'])/i['frequency']
+                has_quarter = True
+        self.assertGreater(avg_score, 0)
+        self.assertTrue(has_quarter)
 
-        self.assertEqual(word_that_should_exist[0], 'quarter')
-        self.assertGreaterEqual(word_that_should_exist[1], 20) 
 
 if __name__ == '__main__':
     unittest.main()

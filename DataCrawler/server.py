@@ -45,30 +45,32 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         :param post_data: Object containing parameters for creating a
         DataCrawler instance
-        :return freqs, scores: A list of tuples containing filtered words and
-        frequencies and a list of tuples containing individual words, scores,
-        and timestamps.
+        :return sentiments: A dictionary containing the fields 'word',
+        'timestamps', 'score', and 'frequency'. 'word' is string, 'frequency' is
+        an integer, 'timestamps' is a list of integers of size 'frequency', and
+        'score' is a list of floats of size 'frequency'.
         """
         crawler = DataCrawler(post_data)
-        scores = crawler.run()
-        return scores
+        sentiments = crawler.run()
+        return sentiments
 
-    def send_words(self, scores):
+    def send_words(self, sentiments):
         """
         Send frequencies response to WordCloud module
 
         :param freqs: A list of tuples containing filtered words and
         frequencies.
-        :param scores: A list of tuples containing words, scores, and
-        timestamps.
+        :param sentiments: A dictionary containing the fields 'word',
+        'timestamps', 'score', and 'frequency'. 'word' is string, 'frequency' is
+        an integer, 'timestamps' is a list of integers of size 'frequency', and
+        'score' is a list of floats of size 'frequency'.
         :return: Returns none
         """
 
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
-        print(scores)
-        json_data = json.dumps(scores).encode('utf-8')
+        json_data = json.dumps(sentiments).encode('utf-8')
         self.wfile.write(json_data)
 
     def do_POST(self):
@@ -82,8 +84,8 @@ class RequestHandler(BaseHTTPRequestHandler):
         post_data = json.loads(self.rfile.read(content_length).decode('utf-8'))
 
         if self.validated(post_data):
-            scores = self.crawl(post_data)
-            self.send_words(scores)
+            sentiments = self.crawl(post_data)
+            self.send_words(sentiments)
         else:
             self.send_error(400, 'Invalid parameters supplied')
 
