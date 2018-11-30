@@ -1,21 +1,53 @@
 import React, { Component } from 'react';
 import DatePicker from "react-datepicker";
-import moment from "moment";
-
+import sketch from './sketch'
+import p5 from 'p5'
 import './App.css';
 import "react-datepicker/dist/react-datepicker.css";
 
 const axios = require('axios');
+
+class P5Wrapper extends React.Component {
+  componentDidMount() {
+    const { sketch, ...rest } = this.props;
+    this.canvas = new p5(sketch(rest), this.wrapper);
+  }
+
+  componentWillReceiveProps(newProps) {
+    const { sketch, ...rest } = newProps;
+
+    if (this.props.sketch !== newProps.sketch) {
+      this.canvas.remove();
+      this.canvas = new p5(newProps.sketch(rest), this.wrapper);
+    }
+
+    if (typeof this.canvas.onNewProps === "function") {
+      this.canvas.onNewProps(newProps);
+    }
+  }
+
+  componentWillUnmount() {
+    this.canvas.remove();
+  }
+
+  render() {
+    return <div ref={(wrapper) => this.wrapper = wrapper} />;
+  }
+}
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       subreddit: "",
-      startDate: moment(),
-      endDate: moment(),
+      startDate: new Date(),
+      endDate: new Date(),
       words: {}
     };
+
+    this.onChangeSubreddit = this.onChangeSubreddit.bind(this);
+    this.onChangeStartDate = this.onChangeStartDate.bind(this);
+    this.onChangeEndDate = this.onChangeEndDate.bind(this);
   }
 
   onChangeSubreddit = (e) => {
@@ -24,12 +56,12 @@ class App extends Component {
 
   onChangeStartDate = (date) => {
     this.setState({ startDate: date });
-    console.log(this.state.startDate.unix());
+    console.log((this.state.startDate.getTime() / 1000).toFixed(0));
   }
   
   onChangeEndDate= (date) => {
     this.setState({ endDate: date });
-    console.log(this.state.endDate.unix());
+    console.log((this.state.startDate.getTime() / 1000).toFixed(0));
   }
 
   onSubmit = (e) => {
@@ -37,8 +69,8 @@ class App extends Component {
 
     let data = JSON.stringify({
       subreddit: this.state.subreddit,
-      start: this.state.startDate.unix(),
-      end: this.state.endDate.unix()
+      start: parseInt((this.state.startDate.getTime() / 1000).toFixed(0)),
+      end: parseInt((this.state.startDate.getTime() / 1000).toFixed(0))
     })
     
     axios.post('http://127.0.0.1:8080', data, {
@@ -72,6 +104,7 @@ class App extends Component {
           />
           <button>Submit</button>
         </form>
+        <P5Wrapper sketch={sketch}/>
       </div>
     );
   }
