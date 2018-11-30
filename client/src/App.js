@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import DatePicker from "react-datepicker";
-import sketch from './sketch'
-import p5 from 'p5'
+import sketch from './sketch';
+import p5 from 'p5';
 import './App.css';
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -70,7 +70,7 @@ class App extends Component {
     let data = JSON.stringify({
       subreddit: this.state.subreddit,
       start: parseInt((this.state.startDate.getTime() / 1000).toFixed(0)),
-      end: parseInt((this.state.startDate.getTime() / 1000).toFixed(0))
+      end: parseInt((this.state.endDate.getTime() / 1000).toFixed(0))
     })
     
     axios.post('http://127.0.0.1:8080', data, {
@@ -97,10 +97,18 @@ class App extends Component {
           <DatePicker
             selected={this.state.startDate}
             onChange={this.onChangeStartDate}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={5}
+            dateFormat="MM/d/yyyy h:mm aa"
           />
           <DatePicker
             selected={this.state.endDate}
             onChange={this.onChangeEndDate}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={5}
+            dateFormat="MM/d/yyyy h:mm aa"
           />
           <button>Submit</button>
         </form>
