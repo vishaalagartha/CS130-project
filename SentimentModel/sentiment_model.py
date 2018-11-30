@@ -79,7 +79,6 @@ class SentimentModel:
             # print("{:-<65} {}".format(i['phrase'], str(vs['compound']*i['vote'])))
             #avg += vs['compound']*i['vote']
 
-        # Need to normalize score once we factor in upvotes
 #         if related_phrases:
 #             score = avg / len(related_phrases)
 #             if score >= 0.05:
