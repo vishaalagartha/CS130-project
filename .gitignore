@@ -6,3 +6,4 @@ SentimentModel/stanford_parser_env.py
 node_modules/
 *.pyc
 .DS_Store
+.vscode/

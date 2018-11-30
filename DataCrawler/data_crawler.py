@@ -68,7 +68,7 @@ class DataCrawler:
                     comments.append((c, comment['score'], timestamp))
 
                 if len(data)==0:
-                    break
+                    return text, comments
 
         return text, comments
 
