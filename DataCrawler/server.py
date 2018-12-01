@@ -46,8 +46,9 @@ class RequestHandler(BaseHTTPRequestHandler):
         :param post_data: Object containing parameters for creating a
         DataCrawler instance
         :return sentiments: A dictionary containing the fields 'word',
-        'timestamps', 'score', and 'frequency'. 'word' is string, 'frequency' is
-        an integer, 'timestamps' is a list of integers of size 'frequency', and
+        'timestamps', 'score', 'vote', and 'frequency'. 'word' is string, 'frequency' is
+        an integer, 'timestamps' is a list of integers of size 'frequency',
+        'vote' is a list of integers of size 'frequency' and
         'score' is a list of floats of size 'frequency'.
         """
         crawler = DataCrawler(post_data)
@@ -61,8 +62,9 @@ class RequestHandler(BaseHTTPRequestHandler):
         :param freqs: A list of tuples containing filtered words and
         frequencies.
         :param sentiments: A dictionary containing the fields 'word',
-        'timestamps', 'score', and 'frequency'. 'word' is string, 'frequency' is
-        an integer, 'timestamps' is a list of integers of size 'frequency', and
+        'timestamps', 'score', 'vote', and 'frequency'. 'word' is string, 'frequency' is
+        an integer, 'timestamps' is a list of integers of size 'frequency',
+        'vote' is a list of integers of size 'frequency' and
         'score' is a list of floats of size 'frequency'.
         :return: Returns none
         """

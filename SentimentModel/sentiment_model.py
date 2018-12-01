@@ -70,24 +70,9 @@ class SentimentModel:
                 related_phrases.append(d)
 
         sentiment_values = []
-        avg = 0
-        vote = 0
-        timestamp = 0
         for i in related_phrases:
             vs = self.model_.polarity_scores(i['phrase'])
-            sentiment_values.append({'score': vs, 'vote': vote, 'timestamp': timestamp, 'word': word})
+            sentiment_values.append({'score': vs['compound'], 'vote': i['vote'],
+                'timestamp': i['timestamp'], 'word': word})
             
-            # sentiment_values.append(vs)
-            # print("{:-<65} {}".format(i['phrase'], str(vs['compound']*i['vote'])))
-            #avg += vs['compound']*i['vote']
-
-#         if related_phrases:
-#             score = avg / len(related_phrases)
-#             if score >= 0.05:
-#                 print('Positive')
-#             elif score <= -0.05:
-#                 print('MEGATIVE')
-#             else:
-#                 print('Neutral')
-
         return sentiment_values

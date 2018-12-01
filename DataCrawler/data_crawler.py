@@ -124,13 +124,10 @@ class DataCrawler:
         :param comments: A list of tuples containing a comment of type string, a
         score of type integer, and a timestamp of type integer
         :return sentiments: A dictionary containing the fields 'word',
-        'timestamps', 'score', and 'frequency'. 'word' is string, 'frequency' is
-        an integer, 'timestamps' is a list of integers of size 'frequency', and
+        'timestamps', 'score', 'vote', and 'frequency'. 'word' is string, 'frequency' is
+        an integer, 'timestamps' is a list of integers of size 'frequency',
+        'vote' is a list of integers of size 'frequency' and
         'score' is a list of floats of size 'frequency'.
-        
-        an individual word of
-        type string, the score associated with the word of type float and a
-        timestamp with type int
         """
         m = SentimentModel(comments)
         sentiments = []
@@ -140,7 +137,8 @@ class DataCrawler:
                 d = {}
                 d['word'] = s[0]['word']
                 d['timestamps'] = [t['timestamp'] for t in s]
-                d['score'] = [t['score']['compound'] for t in s]
+                d['score'] = [t['score'] for t in s]
+                d['vote'] = [t['vote'] for t in s]
                 d['frequency'] = len(s)
                 sentiments.append(d)
         return sentiments
@@ -203,8 +201,9 @@ class DataCrawler:
         
         :param: No parameters
         :return sentiments: A dictionary containing the fields 'word',
-        'timestamps', 'score', and 'frequency'. 'word' is string, 'frequency' is
-        an integer, 'timestamps' is a list of integers of size 'frequency', and
+        'timestamps', 'score', 'vote', and 'frequency'. 'word' is string, 'frequency' is
+        an integer, 'timestamps' is a list of integers of size 'frequency',
+        'vote' is a list of integers of size 'frequency' and
         'score' is a list of floats of size 'frequency'.
         """
         num_comments = self.get_num_comments()
@@ -229,8 +228,9 @@ class DataCrawler:
 
         :param: No parameters
         :return sentiments: A dictionary containing the fields 'word',
-        'timestamps', 'score', and 'frequency'. 'word' is string, 'frequency' is
-        an integer, 'timestamps' is a list of integers of size 'frequency', and
+        'timestamps', 'score', 'vote', and 'frequency'. 'word' is string, 'frequency' is
+        an integer, 'timestamps' is a list of integers of size 'frequency',
+        'vote' is a list of integers of size 'frequency' and
         'score' is a list of floats of size 'frequency'.
         """
         self.loop = asyncio.get_event_loop()
