@@ -2,22 +2,19 @@
     "subreddit": "test",
     "words": [
         {
-          "name":"potato",
-          "x":
+          "word":"potato",
+          "timestamps":
           ["January 2017", "February 2017", "March 2017", "April 2017", "May 2017", "June 2017", "July 2017", "August 2017"],
           "y":
           [123, 115, 120, 153, 106, 132, 143, 152],
-          "s":
+          "score":
           [-0.8, -0.64, -0.34, -0.15, -0.6, 0.23, 0.56, 0.76]
         },
         {
-          "name":"nugget",
-          "x":
-          ["January 2017", "February 2017", "March 2017", "April 2017", "May 2017", "June 2017", "July 2017", "August 2017"],
-          "y":
-          [123, 115, 120, 153, 106, 132, 143, 152],
-          "s":
-          [-0.8, -0.64, -0.34, -0.15, -0.6, 0.23, 0.56, 0.76]
+          "word": "like",
+            "timestamps": [0, 0, 0, 0],
+            "score": [0.3612, 0.3612, 0.6369, 0.1754],
+            "frequency": 4
         }
     ]
  }

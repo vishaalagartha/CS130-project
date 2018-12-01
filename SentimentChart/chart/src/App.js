@@ -6,15 +6,16 @@ import data from "./components/data.json";
 
 //REFERENCE FOR JSON PURPOSES:
 // {'score': vs, 'vote': vote, 'timestamp': timestamp, 'word': word}
+
 class App extends Component {
   constructor(){
     super();
     this.state = {
       chartData:{},
-      word: data.words[0].name,
-      x: data.words[0].x,
-      y: data.words[0].y,
-      s: data.words[0].s,
+      word: data.words[0].word, // this.props .. passed down from WordCloud
+      x: data.words[0].timestamps,
+      y: data.words[0].y, //need to calculate
+      s: data.words[0].score, //score
     }
   }
 
@@ -23,6 +24,27 @@ class App extends Component {
   }
 
   getChartData(){
+
+    // var ts = Math.round((new Date()).getTime() / 1000);
+    //
+    // console.log('hello', Date.now());
+
+
+
+
+    //TIME RANGE DIVIDING
+
+    var ts = this.state.x;
+    var date = [];
+    var sent = this.state.s;
+    date.length = ts.length/2;
+
+
+
+
+
+
+    //SENTIMENT COLOR ASSIGNMENT
     var sentiments = this.state.s;
     var colors = [];
     colors.length = sentiments.length;
