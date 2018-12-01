@@ -29,4 +29,86 @@ Files:<br>
 </td><td width="25%" valign=top><a href="DataCrawler/server.html">server</a><br>
 </td><td width="25%" valign=top><a href="DataCrawler/test_data_crawler.html">test_data_crawler</a><br>
 </td><td width="25%" valign=top></td></tr></table></td></tr></table>
-</body></html>
+</body>
+<title>Python: module sentiment_model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>sentiment_model</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Volumes/Macintosh%20DATA/UCLA/Senior/Fall/CS130-project/SentimentModel/sentiment_model.py">/Volumes/Macintosh DATA/UCLA/Senior/Fall/CS130-project/SentimentModel/sentiment_model.py</a></font></td></tr></table>
+    <p><tt>The&nbsp;<a href="#SentimentModel">SentimentModel</a>&nbsp;class&nbsp;can&nbsp;be&nbsp;used&nbsp;to&nbsp;generate&nbsp;sentiments&nbsp;based&nbsp;on&nbsp;an&nbsp;input&nbsp;of&nbsp;comments<br>
+and&nbsp;their&nbsp;respective&nbsp;votes&nbsp;from&nbsp;a&nbsp;specific&nbsp;subreddit&nbsp;between&nbsp;two&nbsp;timestamps.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="re.html">re</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="sentiment_model.html#SentimentModel">SentimentModel</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SentimentModel">class <strong>SentimentModel</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Encapsulates&nbsp;an&nbsp;instance&nbsp;of&nbsp;the&nbsp;Sentiment&nbsp;class&nbsp;and&nbsp;its&nbsp;methods<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="SentimentModel-__init__"><strong>__init__</strong></a>(self, comments)</dt><dd><tt>Construct&nbsp;a&nbsp;new&nbsp;instance&nbsp;of&nbsp;a&nbsp;<a href="#SentimentModel">SentimentModel</a>,&nbsp;initialize&nbsp;the&nbsp;SentimentIntensityModel<br>
+Calls&nbsp;<a href="#SentimentModel-handleComments">handleComments</a>()&nbsp;to&nbsp;split&nbsp;comments&nbsp;into&nbsp;phrases<br>
+&nbsp;<br>
+:param&nbsp;comments:&nbsp;List&nbsp;of&nbsp;dictionaries&nbsp;containing&nbsp;'comment','votes'&nbsp;and&nbsp;'timestamps'<br>
+fields;&nbsp;'comment'&nbsp;is&nbsp;a&nbsp;string&nbsp;and&nbsp;'votes'&nbsp;and&nbsp;'timestamps'&nbsp;are&nbsp;integers<br>
+&nbsp;<br>
+:return&nbsp;None</tt></dd></dl>
+
+<dl><dt><a name="SentimentModel-generateSentiments"><strong>generateSentiments</strong></a>(self, word)</dt><dd><tt>Generate&nbsp;sentiment&nbsp;given&nbsp;a&nbsp;specific&nbsp;word.&nbsp;Searches&nbsp;for&nbsp;the&nbsp;word&nbsp;in&nbsp;list&nbsp;of&nbsp;phrases<br>
+and&nbsp;generates&nbsp;a&nbsp;sentiment&nbsp;for&nbsp;the&nbsp;specific&nbsp;word.<br>
+&nbsp;<br>
+:param&nbsp;word:&nbsp;String&nbsp;selected&nbsp;by&nbsp;user&nbsp;on&nbsp;front&nbsp;end,&nbsp;sent&nbsp;to&nbsp;<a href="#SentimentModel">SentimentModel</a>&nbsp;to<br>
+generate&nbsp;sentiment&nbsp;of&nbsp;subreddit&nbsp;with&nbsp;the&nbsp;respect&nbsp;to&nbsp;selected&nbsp;word<br>
+&nbsp;<br>
+:return&nbsp;phrases:&nbsp;List&nbsp;of&nbsp;dictionaries&nbsp;containing&nbsp;'phrase','votes'&nbsp;and&nbsp;'timestamps'<br>
+fields;&nbsp;'phrase'&nbsp;is&nbsp;a&nbsp;string&nbsp;and&nbsp;'votes'&nbsp;and&nbsp;'timestamps'&nbsp;are&nbsp;integers</tt></dd></dl>
+
+<dl><dt><a name="SentimentModel-handleComments"><strong>handleComments</strong></a>(self, comments)</dt><dd><tt>Split&nbsp;comments&nbsp;into&nbsp;simple&nbsp;phrases&nbsp;using&nbsp;a&nbsp;Subject-Verb-Object&nbsp;model<br>
+generated&nbsp;from&nbsp;Stanford&nbsp;Parser<br>
+&nbsp;<br>
+:param&nbsp;comments:&nbsp;List&nbsp;of&nbsp;dictionaries&nbsp;containing&nbsp;'comment','votes'&nbsp;and&nbsp;'timestamps'<br>
+fields;&nbsp;'comment'&nbsp;is&nbsp;a&nbsp;string&nbsp;and&nbsp;'votes'&nbsp;and&nbsp;'timestamps'&nbsp;are&nbsp;integers<br>
+&nbsp;<br>
+:return&nbsp;phrases:&nbsp;List&nbsp;of&nbsp;dictionaries&nbsp;containing&nbsp;'phrase','votes'&nbsp;and&nbsp;'timestamps'<br>
+fields;&nbsp;'phrase'&nbsp;is&nbsp;a&nbsp;string&nbsp;and&nbsp;'votes'&nbsp;and&nbsp;'timestamps'&nbsp;are&nbsp;integers</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table>
+</body>
+</html>
