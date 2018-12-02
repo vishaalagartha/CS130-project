@@ -89,6 +89,8 @@ class DataCrawler:
         stripped = [w.translate(table) for w in tokens]
         # remove remaining tokens that are not alphabetic
         words = [word for word in stripped if word.isalpha()]
+        #remove words with length shorter than 2 letters
+        words = [word for word in words if len(word)>2]
         # filter out stop words
         stop_words = set(stopwords.words('english'))
         words = [w for w in words if not w in stop_words]

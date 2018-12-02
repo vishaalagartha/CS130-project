@@ -89,40 +89,88 @@ class TestDataCrawler(unittest.TestCase):
         :return: Returns none
         """
 
-        # Test 1: r/politics should have 'trump' more than 20 times
+        # Test 1: r/politics should have 'trump' more than 20 times, with a high
+        # average score
         params = {'subreddit': 'politics', 'start': 1541700088, 'end': 1541700188}
         crawler = DataCrawler(params)
         sentiments = crawler.run()
         has_trump = False
         for i in sentiments:
             if i['word']=='trump' and i['frequency']>20:
-                avg_score = sum(i['score'])/i['frequency']
                 has_trump = True
-        self.assertLess(avg_score, 0)
         self.assertTrue(has_trump)
 
-        # Test 2: r/javascript should have 'code' more than 50 times
+        # Test 2: r/javascript should have 'code' more than 50 times, with a
+        # high average score
         params = {'subreddit': 'javascript', 'start': 1541600088, 'end': 1541700188}
         crawler = DataCrawler(params)
         sentiments = crawler.run()
         has_code = False
         for i in sentiments:
             if i['word']=='code' and i['frequency']>50:
-                avg_score = sum(i['score'])/i['frequency']
                 has_code = True
-        self.assertGreater(avg_score, 0.1)
         self.assertTrue(has_code)
 
-        # Test 3: r/ucla should have 'quarter' more than 50 times
+        # Test 3: r/ucla should have 'quarter' more than 50 times, with a high
+        # average score
         params = {'subreddit': 'ucla', 'start': 1541500088, 'end': 1541700188}
         crawler = DataCrawler(params)
         sentiments = crawler.run()
         for i in sentiments:
             if i['word']=='quarter' and i['frequency']>20:
-                avg_score = sum(i['score'])/i['frequency']
                 has_quarter = True
-        self.assertGreater(avg_score, 0)
         self.assertTrue(has_quarter)
+
+    def test_backend(self):
+        """
+        Test if individual subreddits have appropriate average scores for
+        relevant words.
+
+        :return: Returns none
+        """
+        # Test 1: r/warriors sentiments toward 'curry', 'klay', 'lebron',
+        # 'draymond'
+        params = {'subreddit': 'warriors', 'start': 1541600088, 'end': 1541700188}
+        crawler = DataCrawler(params)
+        sentiments = crawler.run()
+        for i in sentiments:
+            if i['word']=='curry':
+                avg_score_curry = sum(i['score'])/i['frequency']
+            if i['word']=='klay':
+                avg_score_klay = sum(i['score'])/i['frequency']
+            if i['word']=='lebron':
+                avg_score_lebron = sum(i['score'])/i['frequency']
+            if i['word']=='draymond':
+                avg_score_draymond = sum(i['score'])/i['frequency']
+
+        self.assertGreater(avg_score_curry, 0)
+        self.assertGreater(avg_score_klay, 0)
+        self.assertGreater(avg_score_lebron, 0)
+        self.assertLess(avg_score_draymond, 0)
+
+        # Test 2: r/tesla sentiments toward 'musk'
+        params = {'subreddit': 'tesla', 'start': 1530000051, 'end': 1541800288}
+        crawler = DataCrawler(params)
+        sentiments = crawler.run()
+        for i in sentiments:
+            if i['word']=='musk':
+                avg_score_musk = sum(i['score'])/i['frequency']
+        self.assertLess(avg_score_musk, 0.1)
+
+        # Test 3: r/stocks sentiments toward 'cannabis', 'apple', and 'amazon'
+        params = {'subreddit': 'stocks', 'start': 1541500088, 'end': 1541700188}
+        crawler = DataCrawler(params)
+        sentiments = crawler.run()
+        for i in sentiments:
+            if i['word']=='cannabis':
+                avg_score_cannabis = sum(i['score'])/i['frequency']
+            if i['word']=='apple':
+                avg_score_apple = sum(i['score'])/i['frequency']
+            if i['word']=='amazon':
+                avg_score_amazon = sum(i['score'])/i['frequency']
+        self.assertGreater(avg_score_cannabis, 0.0)
+        self.assertGreater(avg_score_apple, 0.0)
+        self.assertGreater(avg_score_amazon, 0.1)
 
 
 if __name__ == '__main__':
