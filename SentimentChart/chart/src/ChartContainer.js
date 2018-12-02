@@ -7,6 +7,8 @@ import data from "./components/data.json";
 //REFERENCE FOR JSON PURPOSES:
 // {'score': vs, 'vote': vote, 'timestamp': timestamp, 'word': word}
 
+//
+
 class App extends Component {
   constructor(){
     super();
@@ -36,11 +38,22 @@ class App extends Component {
 
     var ts = this.state.x;
     var date = [];
+    var freq = [];
     var sent = this.state.s;
-    date.length = ts.length/2;
+    date.length = ts.length;
+    freq.length = ts.length;
+
+    for(int i = 0; i < date.length; i++){
+
+    }
 
 
 
+
+
+
+
+    //CALCULATE SENTIMENT
 
 
 
