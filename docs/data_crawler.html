@@ -63,9 +63,11 @@ timestamps.<br>
 thread<br>
 &nbsp;<br>
 :param:&nbsp;No&nbsp;parameters<br>
-:return&nbsp;freqs,&nbsp;scores:&nbsp;freqs&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;filtered&nbsp;words&nbsp;and<br>
-frequencies.&nbsp;scores&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;words,&nbsp;scores,&nbsp;and<br>
-timestamps.</tt></dd></dl>
+:return&nbsp;sentiments:&nbsp;A&nbsp;dictionary&nbsp;containing&nbsp;the&nbsp;fields&nbsp;'word',<br>
+'timestamps',&nbsp;'score',&nbsp;'vote',&nbsp;and&nbsp;'frequency'.&nbsp;'word'&nbsp;is&nbsp;string,&nbsp;'frequency'&nbsp;is<br>
+an&nbsp;integer,&nbsp;'timestamps'&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;integers&nbsp;of&nbsp;size&nbsp;'frequency',<br>
+'vote'&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;integers&nbsp;of&nbsp;size&nbsp;'frequency'&nbsp;and<br>
+'score'&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;floats&nbsp;of&nbsp;size&nbsp;'frequency'.</tt></dd></dl>
 
 <dl><dt><a name="DataCrawler-count_freqs"><strong>count_freqs</strong></a>(self, words)</dt><dd><tt>Counts&nbsp;the&nbsp;number&nbsp;of&nbsp;occurrences&nbsp;of&nbsp;each&nbsp;word<br>
 &nbsp;<br>
@@ -107,16 +109,20 @@ comments&nbsp;in&nbsp;date&nbsp;range<br>
 frequency&nbsp;of&nbsp;type&nbsp;integer<br>
 :param&nbsp;comments:&nbsp;A&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;a&nbsp;comment&nbsp;of&nbsp;type&nbsp;string,&nbsp;a<br>
 score&nbsp;of&nbsp;type&nbsp;integer,&nbsp;and&nbsp;a&nbsp;timestamp&nbsp;of&nbsp;type&nbsp;integer<br>
-:return&nbsp;sentiments:&nbsp;A&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;an&nbsp;individual&nbsp;word&nbsp;of<br>
-type&nbsp;string,&nbsp;the&nbsp;score&nbsp;associated&nbsp;with&nbsp;the&nbsp;word&nbsp;of&nbsp;type&nbsp;float&nbsp;and&nbsp;a<br>
-timestamp&nbsp;with&nbsp;type&nbsp;int</tt></dd></dl>
+:return&nbsp;sentiments:&nbsp;A&nbsp;dictionary&nbsp;containing&nbsp;the&nbsp;fields&nbsp;'word',<br>
+'timestamps',&nbsp;'score',&nbsp;'vote',&nbsp;and&nbsp;'frequency'.&nbsp;'word'&nbsp;is&nbsp;string,&nbsp;'frequency'&nbsp;is<br>
+an&nbsp;integer,&nbsp;'timestamps'&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;integers&nbsp;of&nbsp;size&nbsp;'frequency',<br>
+'vote'&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;integers&nbsp;of&nbsp;size&nbsp;'frequency'&nbsp;and<br>
+'score'&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;floats&nbsp;of&nbsp;size&nbsp;'frequency'.</tt></dd></dl>
 
 <dl><dt><a name="DataCrawler-run"><strong>run</strong></a>(self)</dt><dd><tt>Main&nbsp;function&nbsp;to&nbsp;asynchronously&nbsp;fetch&nbsp;frequencies&nbsp;and&nbsp;comments<br>
 &nbsp;<br>
 :param:&nbsp;No&nbsp;parameters<br>
-:return&nbsp;freqs,&nbsp;scores:&nbsp;freqs&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;filtered&nbsp;words&nbsp;and<br>
-frequencies.&nbsp;scores&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;tuples&nbsp;containing&nbsp;words,&nbsp;scores,&nbsp;and<br>
-timestamps.</tt></dd></dl>
+:return&nbsp;sentiments:&nbsp;A&nbsp;dictionary&nbsp;containing&nbsp;the&nbsp;fields&nbsp;'word',<br>
+'timestamps',&nbsp;'score',&nbsp;'vote',&nbsp;and&nbsp;'frequency'.&nbsp;'word'&nbsp;is&nbsp;string,&nbsp;'frequency'&nbsp;is<br>
+an&nbsp;integer,&nbsp;'timestamps'&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;integers&nbsp;of&nbsp;size&nbsp;'frequency',<br>
+'vote'&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;integers&nbsp;of&nbsp;size&nbsp;'frequency'&nbsp;and<br>
+'score'&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;floats&nbsp;of&nbsp;size&nbsp;'frequency'.</tt></dd></dl>
 
 <hr>
 Data descriptors defined here:<br>

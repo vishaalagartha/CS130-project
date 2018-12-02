@@ -6,6 +6,5 @@ Files:
       WordCloud module
     - data_crawler.py: Contains the DataCrawler class, which crawls a specific
       subreddit between two timestamps for comments and frequencies of words
-    - constants.py: Contains constants used by RequestHandler and DataCrawler
-    - test.py: Contains unittests for the module
+    - test_data_crawler.py: Contains unittests and end-to-end tests for the backend
 """

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: sketch.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: sketch.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Main sketch function. Sketches the entire word cloud.
+ * @param {Object} props - Object containing frequency dictionary
+ */ 
+const sketch = (props) => (p) => { 
+  var colorBaseOptions = [];
+  
+  var scalar = 0.82; // Different for each font
+  var debug = false;
+  
+  var font,
+      fontSize = 80,
+      minFontSize = 12;
+  
+  var spawnBoxSize = 50;
+
+  var maxWords = 40;
+    
+  var x,y, cloud;
+  
+  var numColors = 10;
+  var colorMinOffset = 10;
+  var colorMaxOffset = 65;
+  
+  var ih;
+  
+  class wordCloud {
+    /**
+     * Creates an instance of the wordCloud.
+     * - Defines boundaries for the canvas.
+     * - Sorts words by frequencies
+     * - Creates wordBoxes based on frequency and randomly assigns colors 
+     * @param {Object} wordDict - Object containing frequency dictionary
+     */
+    constructor(wordDict) {
+    
+      this.wordDict = wordDict;
+      this.wordBoxes = [];
+      /*
+        boundaries are much bigger than necessary to ensure that 
+        no words exit the screen by jumping over or through a boundary
+  
+        (0,0)
+      |--------|--------|--------|
+      |        |   b3   |        |
+      |        |        |        |
+      |        |--------|        |
+      |   b2   | canvas |   b1   |
+      |        |        |        |
+      |        |--------|        |
+      |        |   b4   |        |
+      |        |        |        |
+      |--------|--------|--------|
+                    (width, height)
+      */
+      this.boundaries = [
+        //b1
+        new Rectangle(p.width,  -p.height, p.width, p.height * 3),
+        //b2
+        new Rectangle(-p.width, -p.height, p.width, p.height * 3),
+        //b3
+        new Rectangle(0, -p.height, p.width, p.height),
+        //b4
+        new Rectangle(0, p.height, p.width, p.height)
+      ];
+  
+      var baseColor = colorBaseOptions[Math.floor(Math.random() * colorBaseOptions.length)];
+  
+      var maxFreq = 0;
+      for (const [word, freq] of Object.entries(wordDict)) {
+        if (freq > maxFreq) {
+          maxFreq = freq;
+        }
+      }
+      var sortable = Object.entries(wordDict);
+      sortable.sort(function(a, b) {
+        return b[1] - a[1];
+      });
+      var minFreq;
+      if (maxWords > sortable.length) {
+        minFreq = 1;
+      } else {
+        minFreq = sortable[maxWords][1];
+      }
+      sortable = sortable.slice(0, maxWords);
+      var count = 0;
+      for (const [word, freq] of sortable) {
+        var isBiggest = count == 0 ? true : false;
+        count++;
+        this.wordBoxes.push(new wordBox(word, freq, maxFreq, minFreq, 
+          this.getProceduralColor(baseColor, colorMinOffset, colorMaxOffset), isBiggest));
+      }
+    }
+
+    /**
+     * Main render function.
+     * - Renders individual word boxes
+     * - Renders individual boundaries
+     */
+    render() {
+      for (var i = 0; i &lt; this.wordBoxes.length; i++) {
+        this.wordBoxes[i].render();
+      }
+      if (debug) {
+        for (var i = 0; i &lt; this.boundaries.length; i++) {
+          this.boundaries[i].render();
+        }
+      }
+    }
+  
+    /**
+     * Handles collisions between wordBoxes by calling
+     * handleCollision() and move() on each wordBox
+     */
+    handleCollisions() {
+      for (var i = 0; i &lt; this.wordBoxes.length; i++) {
+        for (var j = i; j &lt; this.wordBoxes.length; j++) {
+          if (i == j) continue;
+          this.wordBoxes[i].handleCollision(this.wordBoxes[j]);
+        }
+      }
+      for (var i = 0; i &lt; this.wordBoxes.length; i++) {
+        this.wordBoxes[i].move();
+      }
+    }
+  
+    /**
+     * Handles boundaries between boundaries by calling
+     * handleBoundary on individual boundaries.
+     */
+    handleBoundary() {
+      for (var i = 0; i &lt; this.wordBoxes.length; i++) {
+        for (var j = 0; j &lt; this.boundaries.length; j++) {
+          this.wordBoxes[i].handleBoundary(this.boundaries[j]);
+        }
+      }
+    }
+
+    /**
+     * Gets procedural color based on an initial value, min, and max
+     * @param {p5.Color} colorBase - Color base value
+     * @param {Integer} min - Minimum offset from base value
+     * @param {Integer} max - Maximum offset from base value
+     * @return {p5.Color} - Color for wordBox
+     */ 
+    getProceduralColor(colorBase, min, max) {
+      return p.color(this.procColorHelper(p.red(colorBase), min, max),
+                   this.procColorHelper(p.green(colorBase), min, max),
+                   this.procColorHelper(p.blue(colorBase), min, max))
+    }
+  
+    /**
+     * Helper function to randomly create a procedural color
+     * @param {Integer} val - Color base value
+     * @param {Integer} min - Minimum offset from base value
+     * @param {Integer} max - Maximum offset from base value
+     * @return {Integer} temp - Red, green, or blue integer value to be fed
+     * into P5.
+     */
+    procColorHelper(val, min, max) {
+      var temp = val + (Math.random() * ((max*2) - (min*2))) - max;
+      temp = Math.floor(temp &lt;= 0 ? temp - min : temp + min);
+      return temp;
+    }
+  }
+  
+  class wordBox {
+    /**
+     * Creates an instance of a word box.
+     * - Passes all input parameters and binds to object
+     * - Creates instance of rectangle to contain the word
+     * @param {String} text - text to render
+     * @param {Integer} freq - frequency of the word
+     * @param {Integer} maxFreq - maximum of all frequencies in word dictionary
+     * @param {Integer} minFreq - minimum of all frequencies in word dictionary
+     * @param {p5.Color} color - color of the text
+     * @param {Boolean} isBiggest - boolean of whether the word is the biggest among all those in word dictionary
+     */
+    constructor(text, freq, maxFreq, minFreq, color, isBiggest) {
+      this.text = text;
+      this.isBiggest = isBiggest;
+      this.freq = freq;
+      this.maxFreq = maxFreq;
+      this.minFreq = minFreq;
+      this.fontSize = p.map((freq - minFreq)/(maxFreq - minFreq), 0, 1, minFontSize, fontSize);
+      p.textSize(this.fontSize);
+      var randX = Math.random() * spawnBoxSize - spawnBoxSize / 2;
+      var randY = Math.random() * spawnBoxSize - spawnBoxSize / 2;
+      this.rect = new Rectangle(p.width / 2 - p.textWidth(text) / 2 + randX, 
+                    p.height / 2 + randY, 
+                    p.textWidth(text), 
+                    this.fontSize * scalar,
+                    isBiggest);
+      this.yOffset = this.fontSize * (1 - scalar);
+      this.color = color;
+    }
+  
+    /**
+     * Main render function for wordBox class.
+     * - Sets text size, fill, and actual text
+     * - If in debug mode, render the rectangle as well
+     */
+    render() {
+      p.textSize(this.fontSize);
+      p.fill(this.color);
+      p.text(this.text, this.rect.x, this.rect.y - this.yOffset);
+      if (debug) {
+        this.rect.render();
+      }
+    }
+    
+    /**
+     * Handles a collision for this wordBox.
+     * @param {wordBox} other - other wordBox that is colliding with this one
+     */
+    handleCollision(other) {
+      this.rect.handleCollision(other.rect);
+    }
+  
+    /**
+     * Moves a wordBox by moving its rectangle
+     */
+    move() {
+      this.rect.move();
+    }
+  
+    /**
+     * Handle a wordBox collision with a boundary
+     * @param {Boundary} bound - boundary that is colliding with wordBox
+     */
+    handleBoundary(bound) {
+      this.rect.handleCollision(bound);
+    }
+  }
+  
+  class Rectangle {
+    /**
+     * Creates an instance of a Rectangle to contain wordBox
+     * @param {Integer} x - Left x offset
+     * @param {Integer} y - Top y offset
+     * @param {Integer} w - Width of rectangle
+     * @param {Integer} h - Height of rectangle
+     * @param {Boolean} isBiggest - Whether or not this rectangle is biggest of all
+     */
+    constructor(x,y,w,h,isBiggest) {
+      this.x = x;
+      this.y = y;
+      this.w = w;
+      this.h = h;
+      this.midX = x + w / 2;
+      this.midY = y + h / 2;
+      this.vx = 0;
+      this.vy = 0;
+      this.isBiggest = isBiggest
+    }
+  
+    /**
+     * Helper function to calculate area of rectangle
+     */
+    area() {
+      return this.w * this.h;
+    }
+  
+    /**
+     * Main render function to render a Rectangle instance
+     */
+    render() {
+      p.rect(this.x, this.y, this.w, this.h);
+    }
+  
+    /**
+     * Handles a collision with another rectangle
+     * - Collision algorithm is based on spring force
+     * - Sets delta x and delta y (how much to move)
+     * - Sets velocities of this and other rectangle
+     * @param {Recangle} other - other rectangle this rectangle is colliding with
+     */
+    handleCollision(other) {
+      if (!this.collides(other)) {
+        return
+      }
+
+      var spring = 0.5;
+      var force = 800000;
+      var sizeScale = 0.3;
+      var biggestScale = this.isBiggest == true ? 1/50000 : 1;
+
+      var dx = this.midX - other.midX,
+          dy = this.midY - other.midY;
+      var threshold = 1.0;
+      if (dx &lt; threshold &amp;&amp; dx >= 0) {
+        dx = threshold;
+      } else if (dx > -threshold &amp;&amp; dx &lt;= 0) {
+        dx = -threshold;
+      }
+      if (dy &lt; threshold &amp;&amp; dy >= 0) {
+        dy = threshold;
+      } else if (dy > -threshold &amp;&amp; dy &lt;= 0) {
+        dy = -threshold;
+      }
+  
+      // var constvx = force * spring * dx / distance / distance,
+      // 	constvy = force * spring * dy / distance / distance;
+      var constvx = force * spring / dx, // Math.abs(dx),
+        constvy = force * spring / dy; // Math.abs(dy);
+  
+      var areaScale1 = p.pow(this.area(), sizeScale);
+      var areaScale2 = p.pow(other.area(), sizeScale);
+  
+      var max = 1;
+      this.vx += clampAbs(constvx / areaScale1 * biggestScale, max);
+      this.vy += clampAbs(constvy / areaScale1 * biggestScale, max);
+      other.vx -= clampAbs(constvx / areaScale2, max);
+      other.vy -= clampAbs(constvy / areaScale2, max);
+    }
+  
+    /**
+     * Adds an arbitrary inward force for aesthetic reasons (word cloud attraction toward center)
+     * - Adjusts velocity towards center based on constant force strength
+     */
+    addInwardsForce() {
+      var forceStrength = 0.0001;
+      var centerX = p.width / 2;
+      var centerY = p.height / 2;
+      var fX = centerX - this.midX;
+      var fY = centerY - this.midY;
+      this.vx += fX * forceStrength;
+      this.vy += fY * forceStrength;
+    }
+  
+    /**
+     * Main function to move a rectangle when a user drags the rectangle.
+     * - Resets position (x, y, midX, midY) based on velocities
+     * - Resets velocities based on drag
+     */
+    move() {
+      // this.addInwardsForce();
+      var drag = 0.4;
+      this.x += this.vx;
+      this.y += this.vy;
+      this.midX = this.x + this.w / 2;
+      this.midY = this.y + this.h / 2;
+      this.vx = this.vx * drag;
+      this.vy = this.vx * drag;
+    }
+  
+    /**
+     * Helper function to check if other rectangle collides with this one
+     * @param {Recangle} other - other rectangle to check agains
+     * @return {Boolean} - whether or not other rectangle collides with this one
+     */
+    collides(other) {
+      if (this.x &lt; other.x + other.w &amp;&amp; this.x + this.w > other.x &amp;&amp;
+            this.y &lt; other.y + other.h &amp;&amp; this.y + this.h > other.y) {
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Helper function to check if input x and y is in rectangle
+     * @param {Integer} x - x value to check in rectangle
+     * @param {Integer} y - y value to check in rectangle
+     * @return {Boolean} - whether or not x, y pair in rectangle
+     */
+    contains(x, y) {
+      if (x > this.x &amp;&amp; x &lt; this.x + this.w &amp;&amp;
+          y > this.y &amp;&amp; y &lt; this.y + this.h) {
+        return true;
+      }
+      return false;
+    }
+  }
+  
+  class InputHandler {
+    /**
+     * Creates an instance of InputHandler by initializing state/
+     * @param {Array&lt;wordBox>} wordBoxes - array of word boxes user can click on
+     */
+    constructor(wordBoxes) {
+      this.wordBoxes = wordBoxes;
+      this.attachedBox = null;
+      this.xOffset = 0;
+      this.yOffset = 0;
+      this.clickX = 0;
+      this.clickY = 0;
+      this.isPressed = false;
+      this.clickThreshold = 2;
+    }
+  
+    /**
+     * Handles a mouse press event
+     * - Finds wordBox user may have clicked on
+     * - Resets x and y if the click event is within the box
+     */
+    mousePressed() {
+      for (var i = 0; i &lt; this.wordBoxes.length; i++) {
+        if (this.wordBoxes[i].rect.contains(p.mouseX, p.mouseY)) {
+          this.attachedBox = this.wordBoxes[i];
+          this.xOffset = p.mouseX - this.wordBoxes[i].rect.x;
+          this.yOffset = p.mouseY - this.wordBoxes[i].rect.y;
+        }
+      }
+      this.isPressed = true;
+      this.clickX = p.mouseX;
+      this.clickY = p.mouseY;
+    }
+  
+    /**
+     * Handles a mouse release event
+     * - Calls mouseClicked() if the click event is within the threshold
+     */
+    mouseReleased() {
+      if (this.clickX - p.mouseX &lt; this.clickThreshold &amp;&amp; this.clickX - p.mouseX > -this.clickThreshold &amp;&amp;
+          this.clickY - p.mouseY &lt; this.clickThreshold &amp;&amp; this.clickY - p.mouseY > -this.clickThreshold) {
+        this.mouseClicked();
+      }
+      this.attachedBox = null;
+      this.isPressed = false;
+    }
+  
+    /**
+     * Handles a mouse click event
+     * - Update the sentiment chart based on the text the user clicked on
+     */
+    mouseClicked() {
+      if (this.attachedBox != null) {
+        console.log(this.attachedBox.text);
+        this.updateSentimentChart();
+      }
+    }
+  
+    /**
+     * Handles the attached box. This function is called in main render() function
+     * - Adjust the attached box based on x and y offsets
+     */
+    handleAttachedBox() {
+      if (this.attachedBox == null) {
+        return;
+      }
+      this.attachedBox.rect.x = p.mouseX - this.xOffset;
+      this.attachedBox.rect.y = p.mouseY - this.yOffset;
+    }
+  
+    /**
+     * Updates the sentiment chart by dispatching an event to parent App.
+     * - Extract relevant text
+     * - Creates a new event object
+     * - Dispatches event object with relevant text set as value
+     */
+    updateSentimentChart() {
+      var val;
+      if (this.attachedBox == null) {
+        val = "";
+      } else {
+        val = this.attachedBox.text;
+      }
+
+      var input = document.getElementById("canvasForm");
+      var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+      nativeInputValueSetter.call(input, val);
+      var ev = new Event('input', { bubbles: true});
+      console.log(ev);
+      input.dispatchEvent(ev);
+    }
+  }
+  
+  /**
+   * Sets up canvas.
+   * - Initializes canvas size, text size, text alignment, options for a color base
+   * - Creates instance of wordCloud class using word frequency dictionary
+   * - Creates instance of InputHandler class using wordBoxes
+   */
+  p.setup = () => {
+    p.createCanvas(720, 400);
+    p.textSize(fontSize);
+    p.textAlign(p.LEFT, p.TOP);
+    p.textLeading(0);
+    colorBaseOptions = [
+      p.color(0, 51, 204),
+      p.color(51, 204, 51),
+      p.color(255, 153, 51),
+      p.color(153, 51, 255),
+      p.color(51, 204, 204)
+    ];
+    cloud = new wordCloud(props.dict);
+    //make sure to initialize inputHandler after wordCloud, should refactor this
+    ih = new InputHandler(cloud.wordBoxes);
+  }
+  
+  
+  /*
+   * Main draw function.
+   * - Sets background for canvas
+   * - Calls handleBoundary() and handleCollisions() on cloud instance
+   * - Calls handleAttachedBox() on InputHandler instance
+   * - Renders the cloud
+   */
+  p.draw = () => {
+    if (debug) {
+      p.noFill();
+      p.stroke(255, 128, 0);
+    } else {
+  
+    }
+    p.background(255);
+  
+    cloud.handleBoundary();
+    cloud.handleCollisions();
+    ih.handleAttachedBox();
+    cloud.render();
+  }
+  
+  /**
+   * Helper function to clamp value below a maximum value
+   * @param {Integer} val - value to clamp
+   * @param {Integer} max - maximum value val can be
+   */ 
+  function clampAbs(val, max) {
+    var sign = (val &lt; 0) ? -1 : 1;
+    var temp = (val &lt; 0) ? -val : val;
+    if (temp > max) {
+      return sign * max;
+    } else {
+      return val;
+    }
+  }
+  
+  /**
+   * Handle mouse press by calling mousePressed() on the instance of InputHandler
+   */
+  p.mousePressed = () => {
+    ih.mousePressed();
+  }
+  
+  /**
+   * Handle mouse release by calling mouseReleased() on the instance of InputHandler
+   */
+  p.mouseReleased = () => {
+    ih.mouseReleased();
+  }
+}
+
+export default sketch;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="ChartContainer.html">ChartContainer</a></li><li><a href="InputHandler.html">InputHandler</a></li><li><a href="Rectangle.html">Rectangle</a></li><li><a href="wordBox.html">wordBox</a></li><li><a href="wordCloud.html">wordCloud</a></li></ul><h3>Global</h3><ul><li><a href="global.html#sketch">sketch</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Dec 02 2018 11:01:40 GMT-0800 (PST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
