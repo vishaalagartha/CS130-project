@@ -169,7 +169,7 @@ class SVO(object):
         return parse_tree
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     svo = SVO()
     # sentence = "Andreas loves soccer. He is also very good at it. Barack Obama likes the legislation"
     #sentence = 'This is the problem with the max contracts.'
