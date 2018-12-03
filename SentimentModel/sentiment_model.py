@@ -4,6 +4,7 @@ and their respective votes from a specific subreddit between two timestamps.
 """
 # https://github.com/cjhutto/vaderSentiment#python-code-example
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from svo import SVO
 import re
 
 class SentimentModel:
@@ -15,8 +16,8 @@ class SentimentModel:
         Construct a new instance of a SentimentModel, initialize the SentimentIntensityModel
         Calls handleComments() to split comments into phrases
 
-        :param comments: List of dictionaries containing 'comment','votes' and 'timestamps'
-        fields; 'comment' is a string and 'votes' and 'timestamps' are integers
+        :param comments: List of dictionaries containing 'comment', 'vote', and 'timestamp'
+        fields; 'comment' is a string and 'vote' and 'timestamp' are integers
 
         :return None
         """
@@ -28,11 +29,11 @@ class SentimentModel:
         Split comments into simple phrases using a Subject-Verb-Object model
         generated from Stanford Parser
 
-        :param comments: List of dictionaries containing 'comment','votes' and 'timestamps'
-        fields; 'comment' is a string and 'votes' and 'timestamps' are integers
+        :param comments: List of tuples containing 'comment', 'vote', and 'timestamp'
+        fields; 'comment' is a string and 'vote' and 'timestamps' are integers
         
-        :return phrases: List of dictionaries containing 'phrase','votes' and 'timestamps'
-        fields; 'phrase' is a string and 'votes' and 'timestamps' are integers
+        :return phrases: List of dictionaries containing 'phrase', 'vote', and 'timestamp'
+        fields; 'phrase' is a string and 'vote' and 'timestamp' are integers
         """
         # Grab comments that have specific word
         # Parse through comments using Subject-Predicate-Object and split comment into phrases
@@ -43,9 +44,34 @@ class SentimentModel:
             sentence = comment[0].split(".")
             vote = comment[1]
             timestamp = comment[2]
-            for i in sentence:
-                phrase = re.split('; |, | and | but | or | nor ', i)
-            # phrases.append([word for word in phrase])
+            for sent in sentence:
+                phrase = re.split('; |, | and | but | or | nor ', sent)
+
+                # val = []
+                # for sent in sentences:
+                #     root_tree = svo.get_parse_tree(sent)
+                #     val.append(svo.process_parse_tree(next(root_tree)))
+
+                # subject = ""
+                # predicate = ""
+                # obj = ""
+                # org_phrase = ""
+
+                # list_phrase = []
+                # for ind, j in enumerate(val):
+                #     new_phrase = ""
+                #     if j:
+                #         i = j[0]
+                #         subject = i["subject"][0]
+                #         predicate = i["predicate"][0]
+                #         obj = i["object"][0]
+                #         list_phrase.append(sentences[ind])
+                #         org_phrase = sentences[ind]
+                #     else:
+                #         new_phrase = org_phrase.replace(obj, sentences[ind])
+                #         list_phrase.append(new_phrase)
+                # print(list_phrase)
+                # print()
 
                 # If we have the timestamps for each comment/post, we can store it here
                 for j in phrase:
@@ -60,8 +86,8 @@ class SentimentModel:
         :param word: String selected by user on front end, sent to SentimentModel to
         generate sentiment of subreddit with the respect to selected word
         
-        :return phrases: List of dictionaries containing 'phrase','votes' and 'timestamps'
-        fields; 'phrase' is a string and 'votes' and 'timestamps' are integers
+        :return phrases: List of dictionaries containing 'phrase','vote' and 'timestamps'
+        fields; 'phrase' is a string and 'vote' and 'timestamps' are integers
         """
         # Run it through the SentimentIntensityAnalyzer
         related_phrases = []
